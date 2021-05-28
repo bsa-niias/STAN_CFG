@@ -22,6 +22,51 @@ object STANMain: TSTANMain
   end
   object Menu_StanProject: TMainMenu
     Left = 440
+    object Menu0_Dependency: TMenuItem
+      Caption = 'Зависимости'
+      object Menu_Dep_Topology: TMenuItem
+        Caption = 'Топология'
+      end
+      object Menu_Dep_Switch: TMenuItem
+        Caption = 'Стрелки'
+      end
+      object Menu_Dep_Signal: TMenuItem
+        Caption = 'Сигналы'
+      end
+      object Menu_Dep_SP: TMenuItem
+        Caption = 'Секции (СП)'
+      end
+      object Menu_Dep_UP: TMenuItem
+        Caption = 'Секции (УП)'
+      end
+      object Menu_Dep_P: TMenuItem
+        Caption = 'Пути'
+      end
+      object Menu_Dep_BaseStep: TMenuItem
+        Caption = 'Базовые переходы'
+      end
+      object Menu_Dep_DZ: TMenuItem
+        Caption = 'Дополнительные зависимости'
+      end
+      object Menu_Dep_DO: TMenuItem
+        Caption = 'Дополнительные объекты'
+      end
+      object Menu_Dep_TUMSs: TMenuItem
+        Caption = 'Контроллеры'
+      end
+      object Menu_Dep_Diag: TMenuItem
+        Caption = 'Диагностика'
+      end
+      object Menu_Dep_DopStructure: TMenuItem
+        Caption = 'Вспомогательные Структуры'
+      end
+      object Menu_Dep_IN: TMenuItem
+        Caption = 'Матрица ввода'
+      end
+      object Menu_Dep_OUT: TMenuItem
+        Caption = 'Матрица вывода'
+      end
+    end
     object Menu0_Project: TMenuItem
       Caption = 'Проект'
     end
@@ -32,6 +77,7 @@ object STANMain: TSTANMain
       Caption = 'Дополнительные объекты'
       object Menu_DO_Lamps: TMenuItem
         Caption = 'Лампы'
+        OnClick = Menu_DO_LampsClick
         object Menu_DO_Lamps_2Circle: TMenuItem
           Caption = ' Лампа (круговая) двухцветная'
           OnClick = Menu_DO_Lamps_2CircleClick

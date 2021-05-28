@@ -16,6 +16,21 @@ type
     DataSource1: TDataSource;
     Dbf1: TDbf;
     DBGrid1: TDBGrid;
+    Menu0_Dependency: TMenuItem;
+    Menu_Dep_Signal: TMenuItem;
+    Menu_Dep_DopStructure: TMenuItem;
+    Menu_Dep_IN: TMenuItem;
+    Menu_Dep_OUT: TMenuItem;
+    Menu_Dep_SP: TMenuItem;
+    Menu_Dep_UP: TMenuItem;
+    Menu_Dep_P: TMenuItem;
+    Menu_Dep_BaseStep: TMenuItem;
+    Menu_Dep_DZ: TMenuItem;
+    Menu_Dep_DO: TMenuItem;
+    Menu_Dep_TUMSs: TMenuItem;
+    Menu_Dep_Diag: TMenuItem;
+    Menu_Dep_Switch: TMenuItem;
+    Menu_Dep_Topology: TMenuItem;
     Menu_StanProject: TMainMenu;
     Menu0_Project: TMenuItem;
     Menu0_Switches: TMenuItem;
@@ -34,6 +49,7 @@ type
     function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean
       ): Integer;
     procedure FormCreate(Sender: TObject);
+    procedure Menu_DO_LampsClick(Sender: TObject);
     procedure Menu_DO_Lamps_2CircleClick(Sender: TObject);
 
   private
@@ -88,6 +104,11 @@ begin
        end
     else;
   end;
+end;
+
+procedure TSTANMain.Menu_DO_LampsClick(Sender: TObject);
+begin
+
 end;
 
 end.

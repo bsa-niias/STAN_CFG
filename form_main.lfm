@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 2274
+  Left = 1034
   Height = 351
-  Top = 443
+  Top = -11
   Width = 659
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'
@@ -11,21 +11,48 @@ object STANMain: TSTANMain
   OnCreate = FormCreate
   LCLVersion = '2.0.12.0'
   object DBGrid1: TDBGrid
-    Left = 8
-    Height = 228
-    Top = 80
-    Width = 600
+    Left = 16
+    Height = 96
+    Top = 64
+    Width = 128
     Color = clWindow
     Columns = <>
     DataSource = DataSource1
     TabOrder = 0
   end
   object Menu_StanProject: TMainMenu
-    Left = 440
+    Left = 576
+    Top = 8
+    object Menu0_File: TMenuItem
+      Caption = 'Проект'
+      object MenuItem5: TMenuItem
+        Caption = 'Новый проект ...'
+      end
+      object Menu_File_OpenProject: TMenuItem
+        Caption = 'Открыть проект ...'
+      end
+      object Menu_File_SaveProject: TMenuItem
+        Caption = 'Сохранить проект ...'
+      end
+      object Menu_File_SaveAsProject: TMenuItem
+        Caption = 'Сохранить проект как ...'
+        OnClick = Menu_File_SaveAsProjectClick
+      end
+    end
     object Menu0_Dependency: TMenuItem
       Caption = 'Зависимости'
       object Menu_Dep_Topology: TMenuItem
         Caption = 'Топология'
+        OnClick = Menu_Dep_TopologyClick
+        object Menu_Dep_Topology_New: TMenuItem
+          Caption = 'Создать ...'
+        end
+        object Menu_Dep_Topology_Open: TMenuItem
+          Caption = 'Открыть ...'
+        end
+        object Menu_Dep_Topology_NewDBF: TMenuItem
+          Caption = 'Открыть DBF ...'
+        end
       end
       object Menu_Dep_Switch: TMenuItem
         Caption = 'Стрелки'
@@ -66,9 +93,6 @@ object STANMain: TSTANMain
       object Menu_Dep_OUT: TMenuItem
         Caption = 'Матрица вывода'
       end
-    end
-    object Menu0_Project: TMenuItem
-      Caption = 'Проект'
     end
     object Menu0_Switches: TMenuItem
       Caption = 'Стрелки'
@@ -114,18 +138,19 @@ object STANMain: TSTANMain
   end
   object DataSource1: TDataSource
     DataSet = Dbf1
-    Left = 189
-    Top = 24
+    Left = 32
+    Top = 8
   end
   object Dbf1: TDbf
-    FilePath = 'D:\_02_DEV\TEMP\BD_FOX\ORSK\2020_07\'
     IndexDefs = <>
-    TableName = 'TOPOLOG.DBF'
     TableLevel = 4
     OnTranslate = Dbf1Translate
-    Active = True
     FilterOptions = []
-    Left = 259
-    Top = 25
+    Left = 104
+    Top = 8
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog
+    Left = 558
+    Top = 112
   end
 end

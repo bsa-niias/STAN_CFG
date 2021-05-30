@@ -8,8 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, dbflaz, datetimectrls,
-  form_main, form_do_lamps_2color
-  { you can add units after this };
+  form_main, form_do_lamps_2color;
 
 {$R *.res}
 

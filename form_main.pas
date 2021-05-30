@@ -17,6 +17,14 @@ type
     Dbf1: TDbf;
     DBGrid1: TDBGrid;
     Menu0_Dependency: TMenuItem;
+    Menu_Dep_Topology_New: TMenuItem;
+    Menu_Dep_Topology_Open: TMenuItem;
+    Menu_Dep_Topology_NewDBF: TMenuItem;
+    Menu0_File: TMenuItem;
+    Menu_File_SaveAsProject: TMenuItem;
+    Menu_File_OpenProject: TMenuItem;
+    MenuItem5: TMenuItem;
+    Menu_File_SaveProject: TMenuItem;
     Menu_Dep_Signal: TMenuItem;
     Menu_Dep_DopStructure: TMenuItem;
     Menu_Dep_IN: TMenuItem;
@@ -32,7 +40,6 @@ type
     Menu_Dep_Switch: TMenuItem;
     Menu_Dep_Topology: TMenuItem;
     Menu_StanProject: TMainMenu;
-    Menu0_Project: TMenuItem;
     Menu0_Switches: TMenuItem;
     Menu0_DO: TMenuItem;
     Menu_DO_Lamps_2Circle: TMenuItem;
@@ -46,11 +53,13 @@ type
     Menu_DO_SignalObjects: TMenuItem;
     Menu_DO_RailwayCrosses: TMenuItem;
     Menu_DO_Dims: TMenuItem;
-    function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean
-      ): Integer;
+    SelectDirectoryDialog1: TSelectDirectoryDialog;
+    function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;
     procedure FormCreate(Sender: TObject);
+    procedure Menu_Dep_TopologyClick(Sender: TObject);
     procedure Menu_DO_LampsClick(Sender: TObject);
     procedure Menu_DO_Lamps_2CircleClick(Sender: TObject);
+    procedure Menu_File_SaveAsProjectClick(Sender: TObject);
 
   private
 
@@ -71,6 +80,21 @@ procedure TSTANMain.Menu_DO_Lamps_2CircleClick(Sender: TObject);
 
 begin
   frm_DO_Lamps_2Color.Show;
+end;
+
+procedure TSTANMain.Menu_File_SaveAsProjectClick(Sender: TObject);
+//var
+  //SD: TSelectDirectoryDialog;
+begin
+
+  //SD.Create (nil);
+      //OpenDialog1.Title := 'Select Directory';
+      //OpenDialog1.Options := [ofPickFolders, ofPathMustExist, ofForceFileSystem]; // YMMV
+      //OkButtonLabel := 'Select';
+      //DefaultFolder := FDir;
+      //FileName := FDir;
+      //if Execute then
+  SelectDirectoryDialog1.Execute;
 end;
 
 function TSTANMain.Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;
@@ -104,6 +128,11 @@ begin
        end
     else;
   end;
+end;
+
+procedure TSTANMain.Menu_Dep_TopologyClick(Sender: TObject);
+begin
+
 end;
 
 procedure TSTANMain.Menu_DO_LampsClick(Sender: TObject);

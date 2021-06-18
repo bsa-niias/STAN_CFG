@@ -1,0 +1,9 @@
+{
+     "Type" : "JSON",
+     "TimeStamp" : "18.06.2021 21:53:58",
+     "STAN" : {
+          "Name" : "orsk",
+          "Directory" : "D:\\_02_DEV\\TUMS\\Топология\\",
+          "Topology" : "D:\\_02_DEV\\TUMS\\orsk_topolog.js"
+     }
+}

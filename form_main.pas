@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, LCLType, StdCtrls,
   Menus, Grids, UITypes, DBGrids, DBCtrls, Buttons, form_do_lamps_2color, dbf,
   DB, LConvEncoding,
-  fpjson, jsonparser, jsonConf,
+  fpjson, jsonparser, jsonConf, jsonscanner,
   stan_types, form_topologyelem;
 
 { ------------------------------------------------------------------------------- }
@@ -331,6 +331,9 @@ var
   cfgstr_cp866     : String;
   json_stancfg     : TJSONConfig;
   ustr_tmp         : UnicodeString;
+  str_exz1         : String;
+  json_parser      : TJSONParser;
+  json_obj         : TJSONObject;
   {dbf}
   TopologDbf       : TDbf;
   TopologE         : EDatabaseError;
@@ -381,10 +384,16 @@ begin
           end;
        {-endif1}
 
-       json_stancfg := TJSONConfig.Create (NIL);
-       json_stancfg.FileName := CFG.StanPrjFFName;
-       ustr_tmp := json_stancfg.getValue ('STAN/Directory','');
-       CFG.StanPrjDirName := ConvertEncoding (UTF8Encode (ustr_tmp), 'utf8', 'cp866');
+       str_exz1 := '{ "Type" : "JSON","TimeStamp" : "18.06.2021 21:53:58","STAN" : {"Name" : "orsk", "Directory" : "D:\\_02_DEV\\TUMS\\Топология\\","Topology" : "D:\\_02_DEV\\TUMS\\orsk_topolog.js"}}';
+
+       //json_stancfg := TJSONConfig.Create (NIL);
+       //json_stancfg.JSONOptions:=[joUTF8];
+       //json_stancfg.FileName := CFG.StanPrjFFName;
+       //ustr_tmp := json_stancfg.getValue ('STAN/Directory','');
+       //CFG.StanPrjDirName := ConvertEncoding (UTF8Encode (ustr_tmp), 'utf8', 'cp866');
+       json_parser:=TJSONParser.Create(str_exz1,DefaultOptions);
+       json_obj:=json_parser.Parse as TJSONObject;
+       ustr_tmp := json_obj.FindPath ('STAN.Directory').AsString;
 
        { определяем каталог с проектом }
        CFG.StanPrjDirName := Dialog_OpenProject.InitialDir;

@@ -16,16 +16,19 @@ const
   LengthTopologName : Word = 20;  {максимальная длина имени в топологии}
 
 type
+{конфигурация окружения}
 TTopologyCFG = record
-  StanPrjName      : AnsiString;    { stan project name - usually station name}
+  StanPrjName           : AnsiString;    { stan project name - usually station name}
   {StanPrjFName     : string;}
-  StanPrjFFName    : AnsiString;    { full file name }
-  StanPrjDirName   : AnsiString;    { directory name }
+  StanPrjFFName         : AnsiString;    { full file name }
+  StanPrjDirName        : AnsiString;    { directory name }
   StanPrjTopologyFFName : AnsiString;
 end;
 
+{сортированный список элементов топологии,
+ сортировка по номеру и строки и элементу в этой строке}
 TTopologyList = class (TList)
-  public
+public
     procedure SortAdd (var TopologyElement : TTopology);
 end;
 
@@ -108,7 +111,6 @@ implementation
 { TSTANMain }
 
 procedure TSTANMain.Menu_DO_Lamps_2CircleClick(Sender: TObject);
-
 begin
   frm_DO_Lamps_2Color.Show;
 end;
@@ -255,8 +257,9 @@ begin
                          if (TopologDbf.FieldDefs [3].Name <> 'NAME_E') then raise (TopologE);
                          if (TopologDbf.FieldDefs [4].Name <> 'SL')     then raise (TopologE);
                          if (TopologDbf.FieldDefs [5].Name <> 'STOYKA') then raise (TopologE);
+
                          {читаем данные}
-                         Topology := TTopologyList.Create;
+                         Topology.Clear;
 
                          //Topolog_rowcount := 0;
                          TopologDbf.First;
@@ -325,6 +328,7 @@ var
   StanPrjFName     : string;            {имя файла выбранное в диалоговом окне}
   {file's routine}
   StanPrjFD        : TextFile;
+  TopoFD           : TextFile;
   PosFExt          : SizeInt;
   {json}
   json_parser      : TJSONParser;
@@ -386,6 +390,16 @@ begin
           end;
        {-endif1}
 
+       {проверка наличия файла конфигурации}
+       if (FileExists (CFG.StanPrjFFName) = FALSE)
+           then begin
+                MessageDlg ('Загрузка данных ... ', 'Файл конфигурации "' + AnsiUpperCase (CFG.StanPrjFFName) + '" отсутствует!',
+                            mtError, [mbOk], '0');
+                exit;
+           end
+           else;
+       {-endif1}
+
        {чтение файла конфигурации в строку}
        AssignFile (StanPrjFD, CFG.StanPrjFFName);
        Reset (StanPrjFD);
@@ -395,6 +409,7 @@ begin
           ReadLn (StanPrjFD, json_strline);
           json_strfull := json_strfull + json_strline;
        end; { while ... }
+       CloseFile (StanPrjFD);
        {преобразование кодировки}
        json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
 
@@ -417,10 +432,38 @@ begin
        FreeAndNil (json_data);
        FreeAndNil (json_parser);
 
+       Topology.Clear;
+
        if (FileExists (CFG.StanPrjTopologyFFName) = TRUE) { файл конфигурации существует }
           then begin
+
+               json_strline := '';
+               json_strfull := '';
+               {чтение файла топологии в строку}
+               AssignFile (TopoFD, CFG.StanPrjTopologyFFName);
+               Reset (TopoFD);
+               json_strfull := '';
+               while (not (eof (TopoFD))) do
+               begin
+                  ReadLn (TopoFD, json_strline);
+                  json_strfull := json_strfull + json_strline;
+               end; { while ... }
+               CloseFile (TopoFD);
+               {преобразование кодировки}
+               json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
+
+               {находим расположение файла топологии}
+               json_parser    := TJSONParser.Create(json_strfull,DefaultOptions);
+               json_data      := json_parser.Parse;// as TJSONObject;
+
+               {определяем директорию с проектом}
+               json_key       :=  'Topology.Count';
+               json_value     := json_data.FindPath (json_key).AsString;
+               json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
+
           end
           else begin
+
                if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = TRUE) { файл конфигурации существует }
                   then begin
                        if (MessageDlg ('Загрузка данных ... ', 'В каталоге проекта найден TOPOLOG.DBF. Загрузить топологию станции (DBF) ?',
@@ -727,6 +770,8 @@ begin
   btn_NewLine.Visible    := FALSE;
   btn_DeleteLine.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
+
+  Topology := TTopologyList.Create;
 
   //Menu_StanProject.Items [1].Enabled := FALSE;  { "Зависимости" }
 end;

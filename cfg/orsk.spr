@@ -4,6 +4,6 @@
      "STAN" : {
           "Name" : "orsk",
           "Directory" : "D:\\_02_DEV\\TUMS\\STAN_CFG\\cfg\\",
-          "Topology"  : "D:\\_02_DEV\\TUMS\\STAN_CFG\\cfg\\orsk_topolog.js"
+          "Topology"  : "C:\\bsa\\dev\\tums\\stan_cfg\\cfg\\orsk_topolog.js"
      }
 }

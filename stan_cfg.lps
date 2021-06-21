@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="22">
+    <Units Count="23">
       <Unit0>
         <Filename Value="stan_cfg.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -21,8 +21,9 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="402"/>
-        <CursorPos X="49" Y="523"/>
+        <TopLine Value="460"/>
+        <CursorPos Y="421"/>
+        <FoldState Value=" T3va0{1312p"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -45,7 +46,7 @@
         <ResourceBaseClass Value="Form"/>
         <TopLine Value="75"/>
         <CursorPos X="12" Y="96"/>
-        <UsageCount Value="125"/>
+        <UsageCount Value="126"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit3>
@@ -54,7 +55,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="16"/>
-        <UsageCount Value="122"/>
+        <UsageCount Value="123"/>
       </Unit4>
       <Unit5>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\fgl.pp"/>
@@ -101,10 +102,10 @@
       </Unit10>
       <Unit11>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\fpjson.pp"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="133"/>
         <CursorPos X="40" Y="156"/>
-        <UsageCount Value="89"/>
+        <UsageCount Value="90"/>
         <Loaded Value="True"/>
       </Unit11>
       <Unit12>
@@ -154,157 +155,165 @@
       </Unit17>
       <Unit18>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\jsonparser.pp"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="21"/>
         <CursorPos X="27" Y="28"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit18>
       <Unit19>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\jsonscanner.pp"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="34"/>
         <CursorPos X="3" Y="58"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit19>
       <Unit20>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\jsonreader.pp"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="35"/>
         <CursorPos X="46" Y="65"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit20>
       <Unit21>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\inc\systemh.inc"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="448"/>
         <CursorPos X="35" Y="472"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit21>
+      <Unit22>
+        <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\objpas.pp"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="116"/>
+        <CursorPos X="33" Y="139"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit22>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="form_main.pas"/>
-        <Caret Line="418" TopLine="384"/>
+        <Caret Line="435" TopLine="411"/>
       </Position1>
       <Position2>
         <Filename Value="form_main.pas"/>
-        <Caret Line="415" Column="10" TopLine="384"/>
+        <Caret Line="437" TopLine="411"/>
       </Position2>
       <Position3>
         <Filename Value="form_main.pas"/>
-        <Caret Line="407" Column="9" TopLine="384"/>
+        <Caret Line="440" TopLine="423"/>
       </Position3>
       <Position4>
         <Filename Value="form_main.pas"/>
-        <Caret Line="408" TopLine="384"/>
+        <Caret Line="441" TopLine="423"/>
       </Position4>
       <Position5>
         <Filename Value="form_main.pas"/>
-        <Caret Line="411" TopLine="384"/>
+        <Caret Line="443" TopLine="423"/>
       </Position5>
       <Position6>
         <Filename Value="form_main.pas"/>
-        <Caret Line="412" TopLine="384"/>
+        <Caret Line="444" TopLine="423"/>
       </Position6>
       <Position7>
         <Filename Value="form_main.pas"/>
-        <Caret Line="413" TopLine="384"/>
+        <Caret Line="445" TopLine="423"/>
       </Position7>
       <Position8>
         <Filename Value="form_main.pas"/>
-        <Caret Line="414" TopLine="384"/>
+        <Caret Line="446" TopLine="423"/>
       </Position8>
       <Position9>
         <Filename Value="form_main.pas"/>
-        <Caret Line="418" TopLine="384"/>
+        <Caret Line="448" TopLine="423"/>
       </Position9>
       <Position10>
         <Filename Value="form_main.pas"/>
-        <Caret Line="419" TopLine="384"/>
+        <Caret Line="449" TopLine="423"/>
       </Position10>
       <Position11>
         <Filename Value="form_main.pas"/>
-        <Caret Line="420" TopLine="384"/>
+        <Caret Line="448" TopLine="423"/>
       </Position11>
       <Position12>
         <Filename Value="form_main.pas"/>
-        <Caret Line="421" TopLine="384"/>
+        <Caret Line="449" TopLine="423"/>
       </Position12>
       <Position13>
         <Filename Value="form_main.pas"/>
-        <Caret Line="422" TopLine="384"/>
+        <Caret Line="448" TopLine="423"/>
       </Position13>
       <Position14>
         <Filename Value="form_main.pas"/>
-        <Caret Line="423" TopLine="384"/>
+        <Caret Line="449" TopLine="423"/>
       </Position14>
       <Position15>
         <Filename Value="form_main.pas"/>
-        <Caret Line="434" Column="33" TopLine="470"/>
+        <Caret Line="448" TopLine="423"/>
       </Position15>
       <Position16>
         <Filename Value="form_main.pas"/>
-        <Caret Line="436" Column="38" TopLine="498"/>
+        <Caret Line="449" TopLine="423"/>
       </Position16>
       <Position17>
         <Filename Value="form_main.pas"/>
-        <Caret Line="332" Column="39" TopLine="306"/>
+        <Caret Line="448" TopLine="423"/>
       </Position17>
       <Position18>
         <Filename Value="form_main.pas"/>
-        <Caret Line="335" Column="3" TopLine="371"/>
+        <Caret Line="449" TopLine="423"/>
       </Position18>
       <Position19>
         <Filename Value="form_main.pas"/>
-        <Caret Line="78" Column="28" TopLine="55"/>
+        <Caret Line="448" TopLine="423"/>
       </Position19>
       <Position20>
         <Filename Value="form_main.pas"/>
-        <Caret Line="11" Column="23"/>
+        <Caret Line="449" TopLine="423"/>
       </Position20>
       <Position21>
         <Filename Value="form_main.pas"/>
-        <Caret Line="506" TopLine="483"/>
+        <Caret Line="448" TopLine="423"/>
       </Position21>
       <Position22>
         <Filename Value="form_main.pas"/>
-        <Caret Line="507" TopLine="483"/>
+        <Caret Line="449" TopLine="423"/>
       </Position22>
       <Position23>
         <Filename Value="form_main.pas"/>
-        <Caret Line="508" TopLine="483"/>
+        <Caret Line="448" TopLine="423"/>
       </Position23>
       <Position24>
         <Filename Value="form_main.pas"/>
-        <Caret Line="510" TopLine="483"/>
+        <Caret Line="449" TopLine="423"/>
       </Position24>
       <Position25>
         <Filename Value="form_main.pas"/>
-        <Caret Line="511" TopLine="483"/>
+        <Caret Line="448" TopLine="423"/>
       </Position25>
       <Position26>
         <Filename Value="form_main.pas"/>
-        <Caret Line="513" TopLine="483"/>
+        <Caret Line="452" Column="33" TopLine="423"/>
       </Position26>
       <Position27>
         <Filename Value="form_main.pas"/>
-        <Caret Line="515" TopLine="483"/>
+        <Caret Line="457" TopLine="423"/>
       </Position27>
       <Position28>
         <Filename Value="form_main.pas"/>
-        <Caret Line="517" TopLine="483"/>
+        <Caret Line="460" TopLine="433"/>
       </Position28>
       <Position29>
         <Filename Value="form_main.pas"/>
-        <Caret Line="518" TopLine="483"/>
+        <Caret Line="461" TopLine="433"/>
       </Position29>
       <Position30>
         <Filename Value="form_main.pas"/>
-        <Caret Line="519" TopLine="483"/>
+        <Caret Line="462" TopLine="433"/>
       </Position30>
     </JumpHistory>
     <RunParams>

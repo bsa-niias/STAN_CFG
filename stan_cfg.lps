@@ -19,10 +19,12 @@
         <ComponentName Value="STANMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
         <TopLine Value="369"/>
-        <CursorPos X="37" Y="389"/>
+        <CursorPos X="17" Y="387"/>
         <UsageCount Value="205"/>
+        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="form_do_lamps_2color.pas"/>
@@ -40,9 +42,8 @@
         <ComponentName Value="Form_TopologyElement"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="76"/>
-        <CursorPos X="53" Y="76"/>
+        <TopLine Value="75"/>
+        <CursorPos X="12" Y="96"/>
         <UsageCount Value="122"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -150,82 +151,87 @@
         <UsageCount Value="10"/>
       </Unit17>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="19" HistoryIndex="18">
       <Position1>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="76" Column="53" TopLine="83"/>
+        <Caret Line="75" Column="53" TopLine="75"/>
       </Position1>
       <Position2>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="75" Column="53" TopLine="75"/>
+        <Caret Line="74" Column="53" TopLine="74"/>
       </Position2>
       <Position3>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="74" Column="53" TopLine="74"/>
+        <Caret Line="73" Column="53" TopLine="73"/>
       </Position3>
       <Position4>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="73" Column="53" TopLine="73"/>
+        <Caret Line="72" Column="53" TopLine="72"/>
       </Position4>
       <Position5>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="72" Column="53" TopLine="72"/>
+        <Caret Line="71" Column="53" TopLine="71"/>
       </Position5>
       <Position6>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="71" Column="53" TopLine="71"/>
+        <Caret Line="70" Column="53" TopLine="70"/>
       </Position6>
       <Position7>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="70" Column="53" TopLine="70"/>
+        <Caret Line="76" Column="53" TopLine="76"/>
       </Position7>
       <Position8>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="76" Column="53" TopLine="76"/>
+        <Caret Line="75" Column="53" TopLine="75"/>
       </Position8>
       <Position9>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="75" Column="53" TopLine="75"/>
+        <Caret Line="74" Column="53" TopLine="74"/>
       </Position9>
       <Position10>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="74" Column="53" TopLine="74"/>
+        <Caret Line="73" Column="53" TopLine="73"/>
       </Position10>
       <Position11>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="73" Column="53" TopLine="73"/>
+        <Caret Line="72" Column="53" TopLine="72"/>
       </Position11>
       <Position12>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="72" Column="53" TopLine="72"/>
+        <Caret Line="71" Column="53" TopLine="71"/>
       </Position12>
       <Position13>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="71" Column="53" TopLine="71"/>
+        <Caret Line="70" Column="53" TopLine="70"/>
       </Position13>
       <Position14>
         <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="70" Column="53" TopLine="70"/>
+        <Caret Line="76" Column="53" TopLine="76"/>
       </Position14>
       <Position15>
-        <Filename Value="form_topologyelem.pas"/>
-        <Caret Line="76" Column="53" TopLine="76"/>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="390" Column="59" TopLine="369"/>
       </Position15>
+      <Position16>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="387" TopLine="369"/>
+      </Position16>
+      <Position17>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="394" TopLine="369"/>
+      </Position17>
+      <Position18>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="395" TopLine="369"/>
+      </Position18>
+      <Position19>
+        <Filename Value="form_main.pas"/>
+        <Caret Line="396" TopLine="369"/>
+      </Position19>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes Count="0" ActiveMode=""/>
     </RunParams>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="form_main.pas"/>
-        <Line Value="387"/>
-      </Item1>
-    </BreakPoints>
-  </Debugging>
 </CONFIG>

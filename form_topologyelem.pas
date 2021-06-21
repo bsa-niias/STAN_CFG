@@ -24,11 +24,11 @@ type
     Edit_ID: TEdit;
     Edit_UVK: TEdit;
     GroupBox_ElementProperties: TGroupBox;
+    Label_ID: TLabel;
+    Label_ID_Link: TLabel;
     Label_Line: TLabel;
     Label_LineElement: TLabel;
     Label_Name: TLabel;
-    Label_ID: TLabel;
-    Label_ID_Link: TLabel;
     Label_UVK: TLabel;
     UpDown_Line: TUpDown;
     UpDown_LineElement: TUpDown;

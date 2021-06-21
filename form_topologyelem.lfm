@@ -98,54 +98,54 @@ object Form_TopologyElement: TForm_TopologyElement
       TabOrder = 8
       Text = 'combobox_ID_Link'
     end
-  end
-  object Label_Line: TLabel
-    Left = 14
-    Height = 15
-    Top = 38
-    Width = 284
-    Caption = 'TOPOLOG.N_STR {DBF}) Номер строки зависимости'
-    ParentColor = False
-  end
-  object Label_LineElement: TLabel
-    Left = 14
-    Height = 15
-    Top = 77
-    Width = 343
-    Caption = '(TOPOLOG.N_EL {DBF}) Номер элемента в строке зависимости'
-    ParentColor = False
-  end
-  object Label_Name: TLabel
-    Left = 14
-    Height = 15
-    Top = 117
-    Width = 171
-    Caption = '(TOPOLOG.NAME_R {DBF}) Имя'
-    ParentColor = False
-  end
-  object Label_ID: TLabel
-    Left = 14
-    Height = 15
-    Top = 156
-    Width = 239
-    Caption = '(TOPOLOG.NAME_E {DBF}) ID (English name)'
-    ParentColor = False
-  end
-  object Label_ID_Link: TLabel
-    Left = 14
-    Height = 15
-    Top = 196
-    Width = 173
-    Caption = 'TOPOLOG.SL {DBF}) ID перехода'
-    ParentColor = False
-  end
-  object Label_UVK: TLabel
-    Left = 14
-    Height = 15
-    Top = 237
-    Width = 220
-    Caption = 'TOPOLOG.STOYKA {DBF}) Номер стойки'
-    ParentColor = False
+    object Label_Line: TLabel
+      Left = 11
+      Height = 15
+      Top = 11
+      Width = 284
+      Caption = 'TOPOLOG.N_STR {DBF}) Номер строки зависимости'
+      ParentColor = False
+    end
+    object Label_LineElement: TLabel
+      Left = 11
+      Height = 15
+      Top = 50
+      Width = 343
+      Caption = '(TOPOLOG.N_EL {DBF}) Номер элемента в строке зависимости'
+      ParentColor = False
+    end
+    object Label_Name: TLabel
+      Left = 11
+      Height = 15
+      Top = 90
+      Width = 171
+      Caption = '(TOPOLOG.NAME_R {DBF}) Имя'
+      ParentColor = False
+    end
+    object Label_ID: TLabel
+      Left = 11
+      Height = 15
+      Top = 130
+      Width = 239
+      Caption = '(TOPOLOG.NAME_E {DBF}) ID (English name)'
+      ParentColor = False
+    end
+    object Label_ID_Link: TLabel
+      Left = 11
+      Height = 15
+      Top = 171
+      Width = 173
+      Caption = 'TOPOLOG.SL {DBF}) ID перехода'
+      ParentColor = False
+    end
+    object Label_UVK: TLabel
+      Left = 11
+      Height = 15
+      Top = 210
+      Width = 220
+      Caption = 'TOPOLOG.STOYKA {DBF}) Номер стойки'
+      ParentColor = False
+    end
   end
   object btn_Save: TButton
     Left = 304

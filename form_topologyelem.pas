@@ -146,8 +146,8 @@ begin
    Edit_LineElement.Text := str_tmp;
 
    Edit_ID.Text := tplg_init.Id;
-   str_tmp:=ConvertEncoding (tplg_init.Name, 'cp866', 'utf8');
-   Edit_Name.Text := str_tmp;
+   //str_tmp:=ConvertEncoding (tplg_init.Name, 'cp866', 'utf8');
+   Edit_Name.Text := tplg_init.Name;
    combobox_ID_Link.Text := tplg_init.Link;
 
    str (tplg_init.UVK, str_tmp);

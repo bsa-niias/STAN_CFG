@@ -78,7 +78,7 @@ TSTANMain = class(TForm)
     Dialog_CreateNewProject: TOpenDialog;
     Dialog_OpenProject: TOpenDialog;
     StringGrid_TopologData: TStringGrid;
-    function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;
+    {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Menu_DO_LampsClick(Sender: TObject);
@@ -95,8 +95,10 @@ TSTANMain = class(TForm)
 
     CFG      : TTopologyCFG;
     Topology : TTopologyList;
-  public
 
+  public
+    {=Перезагружает StringGrid по списку Tlist=}
+    procedure ConfigureVisualGrid_Topology (var list_source : TTopologyList);
 end;
 
 { ---------------------------------------------------------------------------- }
@@ -320,255 +322,289 @@ begin
   {-endif0}
 end;
 
+{ === Перезагружаем табличку-grid отображения топологии ====================== }
+procedure TSTANMain.ConfigureVisualGrid_Topology (var list_source : TTopologyList);
+var
+  ti      : longword;   { индексы доступа }
+  li      : longword;
+  str_tmp : AnsiString;
+  ptplg   : ^TTopology; { элемент списка }
+
+begin
+  StringGrid_TopologData.Clean;
+
+  {оформляем таблицу}
+  StringGrid_TopologData.ColCount  := 7;
+  StringGrid_TopologData.RowCount  := 1;
+  StringGrid_TopologData.FixedCols := 1;
+  StringGrid_TopologData.FixedRows := 1;
+  StringGrid_TopologData.Cells[1,0] := 'N_STR';  {from TopologDbf.FieldDefs [0].Name;}
+  StringGrid_TopologData.Cells[2,0] := 'N_EL';   { ... TopologDbf.FieldDefs [1].Name;}
+  StringGrid_TopologData.Cells[3,0] := 'NAME_E'; { ... TopologDbf.FieldDefs [2].Name;}
+  StringGrid_TopologData.Cells[4,0] := 'NAME_R'; { ... TopologDbf.FieldDefs [3].Name;}
+  StringGrid_TopologData.Cells[5,0] := 'SL';     { ... TopologDbf.FieldDefs [4].Name;}
+  StringGrid_TopologData.Cells[6,0] := 'STOYKA'; { ... TopologDbf.FieldDefs [5].Name;}
+
+  {формируем и форматируем таблицу}
+  StringGrid_TopologData.RowCount := list_source.Count + 1;
+  for ti := 1 to Topology.Count do
+  begin
+     li := ti - 1;
+     ptplg := Topology.Items[li];
+
+     str (ti, str_tmp);
+     StringGrid_TopologData.Cells[0,ti] := str_tmp;      { порядковый номер }
+     str (ptplg^.Line, str_tmp);
+     StringGrid_TopologData.Cells[1,ti] := str_tmp;      { №строки }
+     str (ptplg^.SubLine, str_tmp);
+     StringGrid_TopologData.Cells[2,ti] := str_tmp;      { №подстроки }
+     StringGrid_TopologData.Cells[3,ti] := ptplg^.Id;    { имя-идентификатор }
+     //str_tmp:=ConvertEncoding (ptplg^.Name, 'cp866', 'utf8');
+     StringGrid_TopologData.Cells[4,ti] := ptplg^.Name;  { имя }
+     StringGrid_TopologData.Cells[5,ti] := ptplg^.Link;  { переход-идентификатор }
+     str (ptplg^.UVK, str_tmp);
+     StringGrid_TopologData.Cells[6,ti] := str_tmp;       { стойка }
+  end;
+
+  StringGrid_TopologData.ColWidths[0] := 50;
+  StringGrid_TopologData.ColWidths[1] :=
+    Trunc ((StringGrid_TopologData.Width - StringGrid_TopologData.ColWidths[0] - 20) / 6);
+  { 20 == width vertical scrollbar}
+  StringGrid_TopologData.ColWidths[2] := StringGrid_TopologData.ColWidths[1];
+  StringGrid_TopologData.ColWidths[3] := StringGrid_TopologData.ColWidths[1];
+  StringGrid_TopologData.ColWidths[4] := StringGrid_TopologData.ColWidths[1];
+  StringGrid_TopologData.ColWidths[5] := StringGrid_TopologData.ColWidths[1];
+  StringGrid_TopologData.ColWidths[6] := StringGrid_TopologData.ColWidths[1];
+
+end;
+
 {=== Открыть существующий проект ==============================================}
 procedure TSTANMain.Menu_Project_OpenClick(Sender: TObject);
 var
   {dialog's}
   DlgRes           : BOOLEAN;           {dialog_execute_result}
-  StanPrjFName     : string;            {имя файла выбранное в диалоговом окне}
+  StanPrjFName     : string;            {имя файла проекта выбранное в диалоговом окне}
+  MsgRes           : TModalResult;      {message_execute_result}
   {file's routine}
+  PosFExt          : SizeInt;
   StanPrjFD        : TextFile;
   TopoFD           : TextFile;
-  PosFExt          : SizeInt;
   {json}
   json_parser      : TJSONParser;
   json_data        : TJSONData;
-
   json_strline     : AnsiString;
   json_strfull     : AnsiString;
   json_strutf8     : AnsiString;
   json_key         : TJSONStringType;
   json_value       : TJSONStringType;
-  json_valueutf8   : AnsiString;
-
   {dbf}
   TopologDbf       : TDbf;
   TopologE         : EDatabaseError;
   {bd}
   TopologyLine     : TTopology;
   tli              : longword;       { индекс цикла списка }
-  ptplg            : ^TTopology;
-  str_tmp          : string;
+  {..._topology.js}
+  topology_count    : LongWord;
+  topology_path     : String;
+  topology_lineprop : TJSONArray;
 
 begin
   Dialog_OpenProject.Title  := 'Открыть проект STAN (*.spr) ... ';
   DlgRes := Dialog_OpenProject.Execute;
   if (DlgRes = FALSE)
-  then exit
-  else begin
-       {"сбрасываем" все имена}
-       CFG.StanPrjName           := ''; {имя проекта}
-       CFG.StanPrjFFName         := '';
-       CFG.StanPrjDirName        := '';
-       CFG.StanPrjTopologyFFName := '';
+     then exit
+     else;
+  {-endif1}
 
-       {определяем название проекта}
-       StanPrjFName := Dialog_OpenProject.FileName;    { возвращается полный путь, даже если нет файла }
-       CFG.StanPrjName  := ExtractFileName (StanPrjFName);
-       PosFExt := pos ('.spr', CFG.StanPrjName); { Поиск расширения файла }
-       if (PosFExt = 0) { Нет расширения }
-          then       {Имя проекта без раширения}
-          else begin { есть расширение? }
-               if (((PosFExt-1)+4) = Length (CFG.StanPrjName)) {есть. -1, т.к. posfext это номер позиции расширения}
-                  then SetLength (CFG.StanPrjName, Length (CFG.StanPrjName)-4)
-                  else;
-               {-endif2}
+  {"сбрасываем" все имена}
+  CFG.StanPrjName           := ''; {имя проекта}
+  CFG.StanPrjFFName         := '';
+  CFG.StanPrjDirName        := '';
+  CFG.StanPrjTopologyFFName := '';
+
+  {определяем название проекта}
+  StanPrjFName    := Dialog_OpenProject.FileName;    { возвращается полный путь, даже если нет файла }
+  CFG.StanPrjName := ExtractFileName (StanPrjFName);
+  PosFExt := pos ('.spr', CFG.StanPrjName); { Поиск расширения файла }
+  if (PosFExt = 0) { Нет расширения }
+     then       {Имя проекта без раширения}
+     else begin { есть расширение? }
+          if (((PosFExt-1)+4) = Length (CFG.StanPrjName)) {есть. -1, т.к. posfext это номер позиции расширения}
+             then SetLength (CFG.StanPrjName, Length (CFG.StanPrjName)-4)
+             else;
+          {-endif2}
+     end;
+  {-endif1}
+
+  {определяем полное имя файла проекта}
+  //CFG.StanPrjFFName := ExpandFileName (CFG.StanPrjFName);
+  CFG.StanPrjFFName := StanPrjFName; { ExpandFileName нужно? }
+  PosFExt := pos ('.spr', CFG.StanPrjFFName); { Поиск расширения фала }
+  if (PosFExt = 0) { нет расширения }
+     then CFG.StanPrjFFName := CFG.StanPrjFFName + '.spr'  {+ расширение файла конфигурации}
+     else begin { есть расширение }
+          if (PosFExt = Length (CFG.StanPrjFFName)-3) {есть}
+             then
+             else CFG.StanPrjFFName := CFG.StanPrjFFName + '.spr';  {+ расширение файла конфигурации}
+          {-endif2}
+     end;
+  {-endif1}
+
+  {проверка наличия файла конфигурации}
+  if (FileExists (CFG.StanPrjFFName) = FALSE)
+      then begin
+           MessageDlg ('Загрузка данных ... ',
+                       'Файл конфигурации "' + AnsiUpperCase (CFG.StanPrjFFName) + '" отсутствует!',
+                       mtError, [mbOk], '0');
+           exit;
+      end
+      else;
+  {-endif1}
+
+  {чтение файла конфигурации в строку}
+  AssignFile (StanPrjFD, CFG.StanPrjFFName);
+  Reset (StanPrjFD);
+  json_strfull := '';
+  while (not (eof (StanPrjFD))) do
+  begin
+     ReadLn (StanPrjFD, json_strline);
+     json_strfull := json_strfull + json_strline;
+  end; { while ... }
+  CloseFile (StanPrjFD);
+  {преобразование кодировки}
+  json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
+
+  {Парсим структуру конфигурационного файла}
+  json_parser    := TJSONParser.Create(json_strfull,DefaultOptions);
+  json_data      := json_parser.Parse;// as TJSONObject;
+   {определяем файл с описанием топологии}
+  json_key       :=  'STAN.Topology';
+  json_value     := json_data.FindPath (json_key).AsString;
+  //json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
+  CFG.StanPrjTopologyFFName :=  json_value; //json_valueutf8;
+  FreeAndNil (json_data);
+  FreeAndNil (json_parser);
+
+  if (FileExists (CFG.StanPrjTopologyFFName) = TRUE) { файл топологии(.js) существует }
+     then begin
+          Topology.Clear; {сброс текущей топологии}
+
+          {чтение файла топологии в строку}
+          json_strline := '';
+          json_strfull := '';
+          AssignFile (TopoFD, CFG.StanPrjTopologyFFName);
+          Reset (TopoFD);
+          json_strfull := '';
+          while (not (eof (TopoFD))) do
+          begin
+             ReadLn (TopoFD, json_strline);
+             json_strfull := json_strfull + json_strline;
+          end; { while ... }
+          CloseFile (TopoFD);
+          {преобразование кодировки}
+          json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
+
+          {находим расположение файла топологии}
+          json_parser    := TJSONParser.Create(json_strutf8,DefaultOptions);
+          json_data      := json_parser.Parse;// as TJSONObject;
+          {определяем директорию с проектом}
+          json_key       := 'Topology.Count';
+          json_value     := json_data.FindPath (json_key).AsString;
+          topology_count := StrToInt (json_value);
+          for tli := 1 to topology_count do
+          begin
+             topology_path := 'Topology.' + IntToStr (tli);
+             {TopologyLine}
+             TopologyLine.Line    := 0;
+             TopologyLine.SubLine := 0;
+             TopologyLine.Id      := '';
+             TopologyLine.Name    := '';
+             TopologyLine.Link    := '';
+             TopologyLine.UVK     := 0;
+
+             topology_lineprop    := TJSONArray (json_data.FindPath (topology_path));
+             TopologyLine.Line    := topology_lineprop.Items [0].AsInteger;
+             TopologyLine.SubLine := topology_lineprop.Items [1].AsInteger;
+             //TopologyLine.Id      := ConvertEncoding (topology_lineprop.Items [2].AsString, 'cp866', 'utf8');
+             //TopologyLine.Name    := ConvertEncoding (topology_lineprop.Items [3].AsString, 'cp866', 'utf8');
+             //TopologyLine.Link    := ConvertEncoding (topology_lineprop.Items [4].AsString, 'cp866', 'utf8');
+             TopologyLine.Id      := topology_lineprop.Items [2].AsString;
+             TopologyLine.Name    := topology_lineprop.Items [3].AsString;
+             TopologyLine.Link    := topology_lineprop.Items [4].AsString;
+             TopologyLine.UVK     := topology_lineprop.Items [5].AsInteger;
+
+             Topology.SortAdd (TopologyLine);
+          end; { end for ... }
+          FreeAndNil (json_data);
+          FreeAndNil (json_parser);
+
+          ConfigureVisualGrid_Topology (Topology);  { заполняем сетку }
+     end
+     else begin
+          { файла *_topology.ts нет }
+          MsgRes := MessageDlg ('Загрузка данных ... ',
+                                'Файл *_topology.ts отсутствует в каталоге проекта.'+
+                                'Найден TOPOLOG.DBF. Подгрузить данные (DBF) ?',
+                                mtConfirmation, [mbYes, mbNo], '0');
+          if (MsgRes <> mrYes)
+             then exit
+             else;
+          {-endif2}
+
+          {MsgRes == mrYes}
+          try
+             TopologDbf := TDbf.Create(nil);
+             TopologDbf.TableLevel:= 4;
+             TopologDbf.TableName := 'TOPOLOG.DBF';
+             TopologDbf.FilePath  := CFG.StanPrjDirName;
+             TopologDbf.Open;
+             TopologE := EDatabaseError.Create ('topolog.dbf');
+             TopologE.Message := 'Bad format topolog.dbf (#TopologDbf.FieldCount)';
+             if (TopologDbf.FieldCount <> 6) then raise (TopologE);
+             TopologE.Message := 'Bad format topolog.dbf (#TopologDbf.FieldDefs)';
+             if (TopologDbf.FieldDefs [0].Name <> 'N_STR')  then raise (TopologE);
+             if (TopologDbf.FieldDefs [1].Name <> 'N_EL')   then raise (TopologE);
+             if (TopologDbf.FieldDefs [2].Name <> 'NAME_R') then raise (TopologE);
+             if (TopologDbf.FieldDefs [3].Name <> 'NAME_E') then raise (TopologE);
+             if (TopologDbf.FieldDefs [4].Name <> 'SL')     then raise (TopologE);
+             if (TopologDbf.FieldDefs [5].Name <> 'STOYKA') then raise (TopologE);
+             {читаем данные}
+             Topology := TTopologyList.Create;
+
+             //Topolog_rowcount := 0;
+             TopologDbf.First;
+             while (TopologDbf.EOF <> TRUE) do
+             begin
+                  {N_STR}  TopologyLine.Line    := TopologDbf.Fields [0].AsInteger;
+                  {N_EL}   TopologyLine.SubLine := TopologDbf.Fields [1].AsInteger;
+                  {NAME_E} TopologyLine.Id      := TopologDbf.Fields [3].AsString;
+                  {NAME_R} TopologyLine.Name    := TopologDbf.Fields [2].AsString;
+                  {SL}     TopologyLine.Link    := TopologDbf.Fields [4].AsString;
+                  {STOYKA} TopologyLine.UVK     := TopologDbf.Fields [5].AsInteger;
+                  Topology.SortAdd(TopologyLine);
+                  TopologDbf.Next;
+              end;
+              TopologDbf.Destroy;
+              TopologE.Destroy;
+
+              ConfigureVisualGrid_Topology (Topology);  { заполняем сетку }
+          Except
+              Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
           end;
-       {-endif1}
+     end;
+  {-endif1}
 
-       {определяем полное имя файла проекта}
-       //CFG.StanPrjFFName := ExpandFileName (CFG.StanPrjFName);
-       CFG.StanPrjFFName := StanPrjFName; { ExpandFileName нужно? }
-       PosFExt := pos ('.spr', CFG.StanPrjFFName); { Поиск расширения фала }
-       if (PosFExt = 0) { Нет расширения }
-          then CFG.StanPrjFFName := CFG.StanPrjFFName + '.spr'  {+ расширение файла конфигурации}
-          else begin { есть расширение? }
-               if (PosFExt = Length (CFG.StanPrjFFName)-3) {есть}
-                  then
-                  else CFG.StanPrjFFName := CFG.StanPrjFFName + '.spr';  {+ расширение файла конфигурации}
-               {-endif2}
-          end;
-       {-endif1}
+  (Menu_StanProject.Items [0]).Items [2].Enabled := TRUE;   { "Сохранить" }
+  (Menu_StanProject.Items [0]).Items [3].Enabled := TRUE;   { "Сохранить как ..." }
+  (Menu_StanProject.Items [0]).Items [4].Enabled := TRUE;   { "Закрыть" }
+  (Menu_StanProject.Items [0]).Items [0].Enabled := FALSE;  { "Создать ..." }
+  (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
 
-       {проверка наличия файла конфигурации}
-       if (FileExists (CFG.StanPrjFFName) = FALSE)
-           then begin
-                MessageDlg ('Загрузка данных ... ', 'Файл конфигурации "' + AnsiUpperCase (CFG.StanPrjFFName) + '" отсутствует!',
-                            mtError, [mbOk], '0');
-                exit;
-           end
-           else;
-       {-endif1}
+  StringGrid_TopologData.Visible := TRUE;
 
-       {чтение файла конфигурации в строку}
-       AssignFile (StanPrjFD, CFG.StanPrjFFName);
-       Reset (StanPrjFD);
-       json_strfull := '';
-       while (not (eof (StanPrjFD))) do
-       begin
-          ReadLn (StanPrjFD, json_strline);
-          json_strfull := json_strfull + json_strline;
-       end; { while ... }
-       CloseFile (StanPrjFD);
-       {преобразование кодировки}
-       json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
-
-       {находим расположение файла топологии}
-       json_parser    := TJSONParser.Create(json_strfull,DefaultOptions);
-       json_data      := json_parser.Parse;// as TJSONObject;
-
-       {определяем директорию с проектом}
-       json_key       :=  'STAN.Directory';
-       json_value     := json_data.FindPath (json_key).AsString;
-       json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
-       CFG.StanPrjDirName :=  json_valueutf8;
-       //FreeAndNil (json_data);
-
-       {определяем файл с описанием топологии}
-       json_key       :=  'STAN.Topology';
-       json_value     := json_data.FindPath (json_key).AsString;
-       json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
-       CFG.StanPrjTopologyFFName :=  json_valueutf8;
-       FreeAndNil (json_data);
-       FreeAndNil (json_parser);
-
-       Topology.Clear;
-
-       if (FileExists (CFG.StanPrjTopologyFFName) = TRUE) { файл конфигурации существует }
-          then begin
-
-               json_strline := '';
-               json_strfull := '';
-               {чтение файла топологии в строку}
-               AssignFile (TopoFD, CFG.StanPrjTopologyFFName);
-               Reset (TopoFD);
-               json_strfull := '';
-               while (not (eof (TopoFD))) do
-               begin
-                  ReadLn (TopoFD, json_strline);
-                  json_strfull := json_strfull + json_strline;
-               end; { while ... }
-               CloseFile (TopoFD);
-               {преобразование кодировки}
-               json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
-
-               {находим расположение файла топологии}
-               json_parser    := TJSONParser.Create(json_strfull,DefaultOptions);
-               json_data      := json_parser.Parse;// as TJSONObject;
-
-               {определяем директорию с проектом}
-               json_key       :=  'Topology.Count';
-               json_value     := json_data.FindPath (json_key).AsString;
-               json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
-
-          end
-          else begin
-
-               if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = TRUE) { файл конфигурации существует }
-                  then begin
-                       if (MessageDlg ('Загрузка данных ... ', 'В каталоге проекта найден TOPOLOG.DBF. Загрузить топологию станции (DBF) ?',
-                                      mtConfirmation, [mbYes, mbNo], '0') = mrYes)
-                           then begin
-                                try
-                                   TopologDbf := TDbf.Create(nil);
-                                   TopologDbf.TableLevel:= 4;
-                                   TopologDbf.TableName := 'TOPOLOG.DBF';
-                                   TopologDbf.FilePath  := CFG.StanPrjDirName;
-                                   TopologDbf.Open;
-                                   TopologE := EDatabaseError.Create ('topolog.dbf');
-                                   TopologE.Message := 'Bad format topolog.dbf (#TopologDbf.FieldCount)';
-                                   if (TopologDbf.FieldCount <> 6) then raise (TopologE);
-                                   TopologE.Message := 'Bad format topolog.dbf (#TopologDbf.FieldDefs)';
-                                   if (TopologDbf.FieldDefs [0].Name <> 'N_STR')  then raise (TopologE);
-                                   if (TopologDbf.FieldDefs [1].Name <> 'N_EL')   then raise (TopologE);
-                                   if (TopologDbf.FieldDefs [2].Name <> 'NAME_R') then raise (TopologE);
-                                   if (TopologDbf.FieldDefs [3].Name <> 'NAME_E') then raise (TopologE);
-                                   if (TopologDbf.FieldDefs [4].Name <> 'SL')     then raise (TopologE);
-                                   if (TopologDbf.FieldDefs [5].Name <> 'STOYKA') then raise (TopologE);
-                                   {читаем данные}
-                                   Topology := TTopologyList.Create;
-
-                                   //Topolog_rowcount := 0;
-                                   TopologDbf.First;
-                                   while (TopologDbf.EOF <> TRUE) do
-                                   begin
-                                        {N_STR}  TopologyLine.Line    := TopologDbf.Fields [0].AsInteger;
-                                        {N_EL}   TopologyLine.SubLine := TopologDbf.Fields [1].AsInteger;
-                                        {NAME_R} TopologyLine.Name    := TopologDbf.Fields [2].AsString;
-                                        {NAME_E} TopologyLine.Id      := TopologDbf.Fields [3].AsString;
-                                        {SL}     TopologyLine.Link    := TopologDbf.Fields [4].AsString;
-                                        {STOYKA} TopologyLine.UVK     := TopologDbf.Fields [5].AsInteger;
-                                        Topology.SortAdd(TopologyLine);
-                                        TopologDbf.Next;
-                                    end;
-                                    TopologE.Destroy;
-
-                                    {оформляем таблицу}
-                                    StringGrid_TopologData.ColCount  := 7;
-                                    StringGrid_TopologData.RowCount  := 1;
-                                    StringGrid_TopologData.FixedCols := 1;
-                                    StringGrid_TopologData.FixedRows := 1;
-                                    StringGrid_TopologData.Cells[1,0] := TopologDbf.FieldDefs [0].Name;
-                                    StringGrid_TopologData.Cells[2,0] := TopologDbf.FieldDefs [1].Name;
-                                    StringGrid_TopologData.Cells[3,0] := TopologDbf.FieldDefs [2].Name;
-                                    StringGrid_TopologData.Cells[4,0] := TopologDbf.FieldDefs [3].Name;
-                                    StringGrid_TopologData.Cells[5,0] := TopologDbf.FieldDefs [4].Name;
-                                    StringGrid_TopologData.Cells[6,0] := TopologDbf.FieldDefs [5].Name;
-                                    {формируем и форматируем таблицу}
-                                    StringGrid_TopologData.RowCount := Topology.Count + 1;
-                                    for tli := 0 to Topology.Count-1 do
-                                    begin
-                                       ptplg := Topology.Items[tli];
-                                       str (tli+1, str_tmp);
-                                       StringGrid_TopologData.Cells[0,tli+1] := str_tmp;
-                                       str (ptplg^.Line, str_tmp);
-                                       StringGrid_TopologData.Cells[1,tli+1] := str_tmp;
-                                       str (ptplg^.SubLine, str_tmp);
-                                       StringGrid_TopologData.Cells[2,tli+1] := str_tmp;
-                                       str_tmp:=ConvertEncoding (ptplg^.Name, 'cp866', 'utf8');
-                                       StringGrid_TopologData.Cells[3,tli+1] := str_tmp;
-                                       StringGrid_TopologData.Cells[4,tli+1] := ptplg^.Id;
-                                       StringGrid_TopologData.Cells[5,tli+1] := ptplg^.Link;
-                                       str (ptplg^.UVK, str_tmp);
-                                       StringGrid_TopologData.Cells[6,tli+1] := str_tmp;
-                                    end;
-                                    Except
-                                       Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
-                                    end;
-                           end
-                           else begin { end MessageDlg (...) }
-                           end;
-                       {-endif3}
-                       end
-                  else begin { end FileExists (...'TOPOLOG.DBF' ...) }
-                       end;
-               {-endif2}
-          end;
-       {-endif1}
-
-       (Menu_StanProject.Items [0]).Items [2].Enabled := TRUE;   { "Сохранить" }
-       (Menu_StanProject.Items [0]).Items [3].Enabled := TRUE;   { "Сохранить как ..." }
-       (Menu_StanProject.Items [0]).Items [4].Enabled := TRUE;   { "Закрыть" }
-
-       (Menu_StanProject.Items [0]).Items [0].Enabled := FALSE;  { "Создать ..." }
-       (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
-
-       StringGrid_TopologData.ColWidths[0] := 50;
-       StringGrid_TopologData.ColWidths[1] :=
-         Trunc ((StringGrid_TopologData.Width - StringGrid_TopologData.ColWidths[0] - 20) / 6);
-       { 20 == width vertical scrollbar}
-       StringGrid_TopologData.ColWidths[2] := StringGrid_TopologData.ColWidths[1];
-       StringGrid_TopologData.ColWidths[3] := StringGrid_TopologData.ColWidths[1];
-       StringGrid_TopologData.ColWidths[4] := StringGrid_TopologData.ColWidths[1];
-       StringGrid_TopologData.ColWidths[5] := StringGrid_TopologData.ColWidths[1];
-       StringGrid_TopologData.ColWidths[6] := StringGrid_TopologData.ColWidths[1];
-
-       StringGrid_TopologData.Visible := TRUE;
-       btn_NewLine.Visible    := TRUE;
-       btn_DeleteLine.Visible := TRUE;
-       btn_EditLine.Visible   := TRUE;
-  end;
-  {-endif0}
+  btn_NewLine.Visible    := TRUE;
+  btn_DeleteLine.Visible := TRUE;
+  btn_EditLine.Visible   := TRUE;
 end;
 
 procedure TSTANMain.Menu_Project_ExitClick(Sender: TObject);
@@ -636,6 +672,7 @@ begin
 end;
 }
 
+{=== Сохрание проекта =========================================================}
 procedure TSTANMain.Menu_Project_SaveClick(Sender: TObject);
 var
   StanPrjTopologyFD  : TextFile;
@@ -720,6 +757,7 @@ begin
   CloseFile (StanPrjTopologyFD);
 end;
 
+{=== Редактирование элемента строки топологии =================================}
 procedure TSTANMain.StringGrid_TopologDataDblClick(Sender: TObject);
 var
   topolog_row   : Integer;     { выбранная строка в списке }
@@ -739,11 +777,13 @@ begin
   Form_TopologyElement.ShowModal;
 end;
 
-
+{===
 function TSTANMain.Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;
 var
   s: string;
 begin
+{init dbf table for correct cirilic}
+{TStringField (Dbf1.Fields.Fields[dbf_column_index]).Transliterate := true;}
   if (ToOEM = true)
     then s:=ConvertEncoding (Src, 'utf8', 'cp866')
     else s:=ConvertEncoding (Src, 'cp866', 'utf8');
@@ -751,29 +791,35 @@ begin
   strcopy (Dest, PChar (s));
   Result := strlen (Dest);
 end;
+===}
 
+{=== Завершение работы ========================================================}
 procedure TSTANMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   CloseAction := caFree;
   Menu_Project_ExitClick (Sender);
 end;
 
+{=== Создание (инициализация) главной формы ===================================}
 procedure TSTANMain.FormCreate(Sender: TObject);
 begin
-  {TStringField (Dbf1.Fields.Fields[dbf_column_index]).Transliterate := true;}
-
   { Все меню заблокированы пока, не откроется или создатся проект }
   (Menu_StanProject.Items [0]).Items [2].Enabled := FALSE;  { "Сохранить" }
-  (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как ..." }
+  (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как" }
   (Menu_StanProject.Items [0]).Items [4].Enabled := FALSE;  { "Закрыть" }
   StringGrid_TopologData.Visible := FALSE;
   btn_NewLine.Visible    := FALSE;
   btn_DeleteLine.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
 
-  Topology := TTopologyList.Create;
+  (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
+  (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
 
-  //Menu_StanProject.Items [1].Enabled := FALSE;  { "Зависимости" }
+  Topology := TTopologyList.Create;
+  CFG.StanPrjName           := '';
+  CFG.StanPrjDirName        := '';
+  CFG.StanPrjFFName         := '';
+  CFG.StanPrjTopologyFFName := '';
 end;
 
 { ------------------------------------------------------------------------------- }
@@ -781,9 +827,7 @@ procedure TSTANMain.Menu_DO_LampsClick(Sender: TObject);
 begin
 end;
 
-{ ------------------------------------------------------------------------------- }
-{ Реализация списка с топологией +сортировка в качестве обязательного функционала }
-{ ------------------------------------------------------------------------------- }
+{=== Реализация списка с топологией +сортировка в качестве обязательного функционала ===}
 procedure TTopologyList.SortAdd (var TopologyElement : TTopology);
 Var
   pTplg_new : ^TTopology;       { указатель новой строки топологии }

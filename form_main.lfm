@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 2915
+  Left = 2998
   Height = 640
-  Top = 207
+  Top = 9
   Width = 801
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'

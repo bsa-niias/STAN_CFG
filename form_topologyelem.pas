@@ -6,8 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls,
-  LConvEncoding,
-  stan_types;
+  Buttons, LConvEncoding, stan_types;
 
 type
 

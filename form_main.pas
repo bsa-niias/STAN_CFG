@@ -30,11 +30,14 @@ end;
 TTopologyList = class (TList)
 public
     procedure SortAdd (var TopologyElement : TTopology);
+    procedure TopologyListReorderAfterAdd;
 end;
 
 { ------------------------------------------------------------------------------- }
 { TSTANMain }
 TSTANMain = class(TForm)
+    bb_TopolineUp: TBitBtn;
+    bb_TopolineDown: TBitBtn;
     btn_NewLine: TButton;
     btn_DeleteLine: TButton;
     btn_EditLine: TButton;
@@ -79,6 +82,8 @@ TSTANMain = class(TForm)
     Dialog_OpenProject: TOpenDialog;
     StringGrid_TopologData: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
+    procedure bb_TopolineUpClick(Sender: TObject);
+    procedure btn_NewLineClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Menu_DO_LampsClick(Sender: TObject);
@@ -94,8 +99,9 @@ TSTANMain = class(TForm)
     //JObjCFG  : TJSONObject;
     //JObjSTAN : TJSONObject;
 
-    CFG      : TTopologyCFG;
-    Topology : TTopologyList;
+    CFG          : TTopologyCFG;
+
+    TopologyList : TTopologyList;
 
   public
     {=Перезагружает StringGrid по списку Tlist=}
@@ -224,6 +230,8 @@ begin
   btn_NewLine.Visible    := TRUE;
   btn_DeleteLine.Visible := TRUE;
   btn_EditLine.Visible   := TRUE;
+  bb_TopolineUp.Visible  := TRUE;
+  bb_TopolineDown.Visible:= TRUE;
 
   { есть dbf топология?}
   if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии dbf отсутствует }
@@ -257,7 +265,7 @@ begin
     if (TopologDbf.FieldDefs [4].Name <> 'SL')     then raise (TopologE);
     if (TopologDbf.FieldDefs [5].Name <> 'STOYKA') then raise (TopologE);
 
-    Topology.Clear; {удаляем старые данные}
+    TopologyList.Clear; {удаляем старые данные}
 
     TopologDbf.First;
     while (TopologDbf.EOF <> TRUE) do {читаем данные}
@@ -268,13 +276,13 @@ begin
        {NAME_R} TopologyLine.Name    := ConvertEncoding (TopologDbf.Fields [2].AsString, 'cp866', 'utf8');;
        {SL}     TopologyLine.Link    := ConvertEncoding (TopologDbf.Fields [4].AsString, 'cp866', 'utf8');;
        {STOYKA} TopologyLine.UVK     := TopologDbf.Fields [5].AsInteger;
-       Topology.SortAdd(TopologyLine);
+       TopologyList.SortAdd(TopologyLine);
        TopologDbf.Next;
     end;
     TopologE.Destroy;
     TopologDbf.Destroy;
 
-    ConfigureVisualGrid_Topology (Topology);  { заполняем сетку }
+    ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
     btn_NewLine.SetFocus;
   Except
     Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
@@ -308,10 +316,10 @@ begin
 
   {формируем и форматируем таблицу}
   StringGrid_TopologData.RowCount := list_source.Count + 1;
-  for ti := 1 to Topology.Count do
+  for ti := 1 to TopologyList.Count do
   begin
      li := ti - 1;
-     ptplg := Topology.Items[li];
+     ptplg := TopologyList.Items[li];
 
      str (ti, str_tmp);
      StringGrid_TopologData.Cells[0,ti] := str_tmp;      { порядковый номер }
@@ -452,7 +460,7 @@ begin
 
   if (FileExists (CFG.StanPrjTopologyFFName) = TRUE) { файл топологии(.js) существует }
      then begin
-          Topology.Clear; {сброс текущей топологии}
+          TopologyList.Clear; {сброс текущей топологии}
 
           {чтение файла топологии в строку}
           json_strline := '';
@@ -495,12 +503,12 @@ begin
              TopologyLine.Link    := topology_lineprop.Items [4].AsString;
              TopologyLine.UVK     := topology_lineprop.Items [5].AsInteger;
 
-             Topology.SortAdd (TopologyLine);
+             TopologyList.SortAdd (TopologyLine);
           end; { end for ... }
           FreeAndNil (json_data);
           FreeAndNil (json_parser);
 
-          ConfigureVisualGrid_Topology (Topology);  { заполняем сетку }
+          ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
      end
      else begin
           if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии(.js) существует }
@@ -535,7 +543,7 @@ begin
              if (TopologDbf.FieldDefs [4].Name <> 'SL')     then raise (TopologE);
              if (TopologDbf.FieldDefs [5].Name <> 'STOYKA') then raise (TopologE);
              {читаем данные}
-             Topology := TTopologyList.Create;
+             TopologyList := TTopologyList.Create;
 
              //Topolog_rowcount := 0;
              TopologDbf.First;
@@ -547,13 +555,13 @@ begin
                   {NAME_R} TopologyLine.Name    := ConvertEncoding (TopologDbf.Fields [2].AsString, 'cp866', 'utf8');;
                   {SL}     TopologyLine.Link    := ConvertEncoding (TopologDbf.Fields [4].AsString, 'cp866', 'utf8');;
                   {STOYKA} TopologyLine.UVK     := TopologDbf.Fields [5].AsInteger;
-                  Topology.SortAdd(TopologyLine);
+                  TopologyList.SortAdd(TopologyLine);
                   TopologDbf.Next;
               end;
               TopologDbf.Destroy;
               TopologE.Destroy;
 
-              ConfigureVisualGrid_Topology (Topology);  { заполняем сетку }
+              ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
           Except
               Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
           end;
@@ -571,6 +579,8 @@ begin
   btn_NewLine.Visible    := TRUE;
   btn_DeleteLine.Visible := TRUE;
   btn_EditLine.Visible   := TRUE;
+  bb_TopolineUp.Visible  := TRUE;
+  bb_TopolineDown.Visible:= TRUE;
 
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
@@ -648,13 +658,9 @@ var
   StanPrjTopologyFD  : TextFile;
   tli                : Longint;       { индекс цикла списка }
   ptplg              : ^TTopology;
-  //str_tmp            : string;
-  //str_tmp1           : string;
-  //str_tmp2           : string;
   str_tmp            : AnsiString;
   str_tmp1           : AnsiString;
   topostr            : AnsiString;
-  //topostr_cp866      : AnsiString;
 
   {json}
   json_cfg           : TJSONObject;
@@ -690,15 +696,15 @@ begin
   WriteLn (StanPrjTopologyFD, '   "Type" : "JSON",');
   WriteLn (StanPrjTopologyFD, '   "TimeStamp" : "' + DateToStr (Now)+' '+TimeToStr (Now)+'",');
   WriteLn (StanPrjTopologyFD, '   "Topology" : {');
-  str (Topology.Count, topostr);
+  str (TopologyList.Count, topostr);
   Write (StanPrjTopologyFD, '      "Count" : "'+topostr+'"');
-  if (Topology.Count > 0)
+  if (TopologyList.Count > 0)
      then WriteLn (StanPrjTopologyFD, ',')
      else;
 
-  for tli := 1 to Topology.Count do
+  for tli := 1 to TopologyList.Count do
   begin
-     ptplg := Topology.Items[tli-1];
+     ptplg := TopologyList.Items[tli-1];
 
      Write (StanPrjTopologyFD, '      '); {отступ}
 
@@ -744,7 +750,7 @@ begin
      topostr := topostr + Format ('%3s',[str_tmp]);
      topostr := topostr + ' ]';
 
-     if (tli <> Topology.Count)
+     if (tli <> TopologyList.Count)
         then topostr := topostr + ',' {Write (StanPrjTopologyFD, ',')}
         else;
 
@@ -771,7 +777,7 @@ begin
      else;
   {-endif0}
 
-  ptplg := Topology.Items[topolog_row-1];
+  ptplg := TopologyList.Items[topolog_row-1];
 
   TopologyLine := ptplg^;
   Form_TopologyElement.TopologFieldsInit (TopologyLine);
@@ -801,6 +807,49 @@ begin
   Menu_Project_ExitClick (Sender);
 end;
 
+procedure TSTANMain.btn_NewLineClick(Sender: TObject);
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  TopologyElement : TTopology;   { значения }
+  pTplg_new       : ^TTopology;
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+  if (topolog_row < 1)
+     then exit
+     else;
+  {-endif0}
+
+  { память для нового элемента в список }
+  new (pTplg_new);
+  if (pTplg_new = NIL)
+     then begin
+          Application.MessageBox ('Нехватка памяти. TSTANMain.btn_NewLineClick (...)', 'f.ck.p', MB_OK);
+          exit;
+     end
+     else;
+  {-endif0}
+
+  //TopologyElementReset (TopologyElement);
+  TopologyElement.Line    := 0;
+  TopologyElement.SubLine := 0;
+  TopologyElement.Id      := '';
+  TopologyElement.Name    := '';
+  TopologyElement.Link    := '';
+  TopologyElement.UVK     := 0;
+  pTplg_new^ :=  TopologyElement; { копия значения }
+
+  TopologyList.Insert(topolog_row, pTplg_new);
+  TopologyList.TopologyListReorderAfterAdd;
+  ConfigureVisualGrid_Topology (TopologyList);
+  StringGrid_TopologData.Row := topolog_row+1;
+end;
+
+procedure TSTANMain.bb_TopolineUpClick(Sender: TObject);
+begin
+
+end;
+
 {=== Создание (инициализация) главной формы ===================================}
 procedure TSTANMain.FormCreate(Sender: TObject);
 begin
@@ -812,11 +861,13 @@ begin
   btn_NewLine.Visible    := FALSE;
   btn_DeleteLine.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
+  bb_TopolineUp.Visible  := FALSE;
+  bb_TopolineDown.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
 
-  Topology := TTopologyList.Create;
+  TopologyList := TTopologyList.Create;
   CFG.StanPrjName           := '';
   CFG.StanPrjDirName        := '';
   CFG.StanPrjFFName         := '';
@@ -841,7 +892,7 @@ begin
      else;
   {-endif1}
 
-  Topology.Clear;
+  TopologyList.Clear;
   StringGrid_TopologData.Clear;
 
   {"сбрасываем" все имена}
@@ -858,6 +909,8 @@ begin
   btn_NewLine.Visible    := FALSE;
   btn_DeleteLine.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
+  bb_TopolineUp.Visible  := FALSE;
+  bb_TopolineDown.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -945,6 +998,20 @@ Begin
   end;
 
 End;
+{ ---------------------------------------------------------------------------- }
+procedure TTopologyList.TopologyListReorderAfterAdd;
+var
+  tli   : Integer;
+  pTplg : ^TTopology;
+begin
+
+  for tli := 1 to tli Count do
+
+      pItems [tli-1];
+  end;
+
+end;
+
 { ---------------------------------------------------------------------------- }
 end.
 

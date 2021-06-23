@@ -18,7 +18,19 @@ TTopology = record
   UVK     : Integer;   { aka STOYKA (topolog.dbf) }
 end;
 
+procedure TopologyElementReset (var tplg : TTopology);
+
 implementation
+
+procedure TopologyElementReset (var tplg : TTopology);
+begin
+   tplg.Line    := 0;
+   tplg.SubLine := 0;
+   tplg.Id      := '';
+   tplg.Name    := '';
+   tplg.Link    := '';
+   tplg.UVK     := 0;
+end;
 
 end.
 

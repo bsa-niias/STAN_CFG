@@ -16,6 +16,7 @@ type
   TForm_TopologyElement = class(TForm)
     btn_Save: TButton;
     btn_Cancel: TButton;
+    btn_Properties: TButton;
     cb_EditEnable: TCheckBox;
     combobox_ID_Link: TComboBox;
     Edit_Line: TEdit;
@@ -61,6 +62,7 @@ end;
 
 procedure TForm_TopologyElement.FormCreate(Sender: TObject);
 begin
+  btn_Properties.Enabled     := FALSE;
   btn_Save.Enabled           := FALSE;
   Edit_Line.Enabled          := FALSE;
   Edit_LineElement.Enabled   := FALSE;
@@ -87,6 +89,7 @@ procedure TForm_TopologyElement.cb_EditEnableChange(Sender: TObject);
 begin
   if (cb_EditEnable.Checked = TRUE)
   then begin
+          btn_Properties.Enabled     := TRUE;
           btn_Save.Enabled           := TRUE;
           Edit_Line.Enabled          := FALSE;
           Edit_LineElement.Enabled   := FALSE;
@@ -109,6 +112,7 @@ begin
           cb_EditEnable.Enabled              := TRUE;
        end
   else begin
+          btn_Properties.Enabled     := FALSE;
           btn_Save.Enabled           := FALSE;
           Edit_Line.Enabled          := FALSE;
           Edit_LineElement.Enabled   := FALSE;

@@ -1,7 +1,7 @@
 object Form_TopologyElement: TForm_TopologyElement
-  Left = 3261
+  Left = 2909
   Height = 333
-  Top = 699
+  Top = 586
   Width = 538
   Caption = 'Элемент топологии'
   ClientHeight = 333
@@ -171,5 +171,13 @@ object Form_TopologyElement: TForm_TopologyElement
     Caption = 'Редактировать'
     OnChange = cb_EditEnableChange
     TabOrder = 3
+  end
+  object btn_Properties: TButton
+    Left = 192
+    Height = 25
+    Top = 288
+    Width = 75
+    Caption = 'Свойства ...'
+    TabOrder = 4
   end
 end

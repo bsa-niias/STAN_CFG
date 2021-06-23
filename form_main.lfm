@@ -48,7 +48,8 @@ object STANMain: TSTANMain
     TabOrder = 3
   end
   object Menu_StanProject: TMainMenu
-    Left = 440
+    Left = 728
+    Top = 304
     object Menu0_Project: TMenuItem
       Caption = 'Проект'
       object Menu_Project_Create: TMenuItem
@@ -68,6 +69,7 @@ object STANMain: TSTANMain
       end
       object Menu_Project_Close: TMenuItem
         Caption = 'Закрыть'
+        OnClick = Menu_Project_CloseClick
       end
       object Menu_Project_Exit: TMenuItem
         Caption = 'Выход'

@@ -38,6 +38,7 @@ object STANMain: TSTANMain
     Top = 56
     Width = 104
     Caption = 'Удалить'
+    OnClick = btn_DeleteLineClick
     TabOrder = 2
   end
   object btn_EditLine: TButton
@@ -651,8 +652,8 @@ object STANMain: TSTANMain
     TabOrder = 5
   end
   object Menu_StanProject: TMainMenu
-    Left = 768
-    Top = 568
+    Left = 728
+    Top = 472
     object Menu0_Project: TMenuItem
       Caption = 'Проект'
       object Menu_Project_Create: TMenuItem
@@ -769,13 +770,13 @@ object STANMain: TSTANMain
   object Dialog_CreateNewProject: TOpenDialog
     Title = 'STAN PRJ'
     Options = [ofViewDetail]
-    Left = 768
-    Top = 496
+    Left = 728
+    Top = 328
   end
   object Dialog_OpenProject: TOpenDialog
     Filter = 'STAN Projects (*.spr)|*.spr'
     Options = [ofViewDetail]
-    Left = 768
-    Top = 536
+    Left = 728
+    Top = 400
   end
 end

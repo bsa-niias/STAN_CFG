@@ -31,6 +31,7 @@ TTopologyList = class (TList)
 public
     procedure SortAdd (var TopologyElement : TTopology);
     procedure TopologyListReorderAfterAdd;
+    procedure TopologyListReorderAfterRemove;
 end;
 
 { ------------------------------------------------------------------------------- }
@@ -83,6 +84,7 @@ TSTANMain = class(TForm)
     StringGrid_TopologData: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
     procedure bb_TopolineUpClick(Sender: TObject);
+    procedure btn_DeleteLineClick(Sender: TObject);
     procedure btn_NewLineClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -812,13 +814,14 @@ var
   topolog_row     : Integer;     { выбранная строка в списке }
   TopologyElement : TTopology;   { значения }
   pTplg_new       : ^TTopology;
+  TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
 {---}
 begin
   topolog_row := StringGrid_TopologData.Row;
-  if (topolog_row < 1)
-     then exit
-     else;
-  {-endif0}
+  //if (topolog_row < 1)
+  //   then exit
+  //   else;
+  //{-endif0}
 
   { память для нового элемента в список }
   new (pTplg_new);
@@ -839,10 +842,55 @@ begin
   TopologyElement.UVK     := 0;
   pTplg_new^ :=  TopologyElement; { копия значения }
 
-  TopologyList.Insert(topolog_row, pTplg_new);
-  TopologyList.TopologyListReorderAfterAdd;
-  ConfigureVisualGrid_Topology (TopologyList);
-  StringGrid_TopologData.Row := topolog_row+1;
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  TopologyList.Insert(topolog_row, pTplg_new);  { добавляем новоый элемент строки топологии }
+  TopologyList.TopologyListReorderAfterAdd;     { корректировка индексов }
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row+1;  { выделяем новую строку }
+
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+end;
+
+
+procedure TSTANMain.btn_DeleteLineClick(Sender: TObject);
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  pTplg           : ^TTopology;
+  TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+  if (topolog_row < 1)
+     then exit
+     else;
+  {-endif0}
+
+  //if (topolog_row = 1)
+  //   then begin
+  //        Application.MessageBox ('Нельзя удалять первый элемент!', 'f.ck.p', MB_OK);
+  //        exit;
+  //   end
+  //   else;
+  //{-endif0}
+
+  pTplg := TopologyList.Items [topolog_row-1]; { 0-шапка сетки, -1 == 0 элемент списка }
+  pTplg^.Line    := -1;
+  pTplg^.SubLine := -1;
+  pTplg^.Id      := '';
+  pTplg^.Name    := '';
+  pTplg^.Link    := '';
+  pTplg^.UVK     := 0;
+
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  TopologyList.TopologyListReorderAfterRemove;  { корректировка индексов }
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
+
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 end;
 
 procedure TSTANMain.bb_TopolineUpClick(Sender: TObject);
@@ -998,17 +1046,144 @@ Begin
   end;
 
 End;
-{ ---------------------------------------------------------------------------- }
+{=== Корректировка индексов после включения нового элемента (0,0)==============}
 procedure TTopologyList.TopologyListReorderAfterAdd;
 var
-  tli   : Integer;
-  pTplg : ^TTopology;
+  tli              : Integer;
+  tli2             : Integer;
+  c                : Integer;
+  pTopologyElement : ^TTopology;
+  CurrentLine      : Integer;
+  CurrentSubLine   : Integer;
+
 begin
 
-  for tli := 1 to tli Count do
+  if (self.Count = 0) {есть что-то?}
+     then exit
+     else;
 
-      pItems [tli-1];
+  tli := 0;
+  pTopologyElement := self.Items [tli];
+  {Проверка включения первого элемента}
+  {т.к. элемент включается после существующего, то}
+  {0,0 в первом элементе говорит о том, что добавили самый первый элемент}
+  if ((pTopologyElement^.Line = 0) and (pTopologyElement^.SubLine = 0))
+     then begin
+          pTopologyElement^.Line    := 1;
+          pTopologyElement^.SubLine := 1;
+          exit;
+     end
+     else;
+  {-endif0}
+
+  tli := 0;
+  pTopologyElement := self.Items [tli];
+  CurrentLine    := pTopologyElement^.Line;
+  CurrentSubLine := pTopologyElement^.SubLine;
+
+  c := self.Count;
+  for tli := 1 to c do { нулевой, т.е. певый пропускаем }
+  begin
+     pTopologyElement := self.Items [tli];
+     if ((pTopologyElement^.Line = 0) and (pTopologyElement^.SubLine = 0))
+        then begin
+             pTopologyElement^.Line    := CurrentLine;
+             pTopologyElement^.SubLine := CurrentSubLine + 1;
+
+             CurrentSubLine := pTopologyElement^.SubLine;
+
+             if (tli+1 = c) {вставка самого последнего элемента}
+                then exit
+                else;
+             {-endif2}
+
+             for tli2 := tli+1 to c do { со следующего и "до упора" }
+             begin
+                pTopologyElement := self.Items [tli2];
+                if (pTopologyElement^.Line = CurrentLine)
+                   then begin
+                        pTopologyElement^.SubLine := CurrentSubLine + 1;
+                        CurrentSubLine := pTopologyElement^.SubLine;
+                   end
+                   else exit;
+             end;
+        end
+        else;
+     {-endif1}
+
+     CurrentLine    := pTopologyElement^.Line;
+     CurrentSubLine := pTopologyElement^.SubLine;
   end;
+
+end;
+
+{=== Корректировка индексов после удаления элемента (-1,-1) ===================}
+procedure TTopologyList.TopologyListReorderAfterRemove;
+var
+  tli              : Integer;
+  tli2             : Integer;
+  c                : Integer;
+  pTopologyElement : ^TTopology;
+  CurrentLine      : Integer;
+  CurrentSubLine   : Integer;
+
+begin
+
+  if (self.Count = 0) {есть что-то?}
+     then exit
+     else;
+
+  tli := 0;
+  pTopologyElement := self.Items [tli];
+  {Проверка удаления единственного элемента}
+  if ((self.Count = 1) and
+      (pTopologyElement^.Line = -1) and (pTopologyElement^.SubLine = -1))
+     then begin
+          self.Clear;
+          exit;
+     end
+     else;
+  {-endif0}
+
+  tli := 0;
+  pTopologyElement := self.Items [tli];
+  CurrentLine      := pTopologyElement^.Line;
+  CurrentSubLine   := pTopologyElement^.SubLine;
+
+  c := self.Count;
+  for tli := 1 to c do { нулевой, т.е. первый пропускаем }
+  begin
+     pTopologyElement := self.Items [tli];
+     if ((pTopologyElement^.Line = 0) and (pTopologyElement^.SubLine = 0))
+        then begin
+             pTopologyElement^.Line    := CurrentLine;
+             pTopologyElement^.SubLine := CurrentSubLine + 1;
+
+             CurrentSubLine := pTopologyElement^.SubLine;
+
+             if (tli+1 = c) {вставка самого последнего элемента}
+                then exit
+                else;
+             {-endif2}
+
+             for tli2 := tli+1 to c do { со следующего и "до упора" }
+             begin
+                pTopologyElement := self.Items [tli2];
+                if (pTopologyElement^.Line = CurrentLine)
+                   then begin
+                        pTopologyElement^.SubLine := CurrentSubLine + 1;
+                        CurrentSubLine := pTopologyElement^.SubLine;
+                   end
+                   else exit;
+             end;
+        end
+        else;
+     {-endif1}
+
+     CurrentLine    := pTopologyElement^.Line;
+     CurrentSubLine := pTopologyElement^.SubLine;
+  end;
+  }
 
 end;
 

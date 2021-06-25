@@ -1121,7 +1121,7 @@ end;
 procedure TTopologyList.TopologyListReorderAfterRemove;
 var
   tli              : Integer;
-  tli2             : Integer;
+  //tli2             : Integer;
   c                : Integer;
   pTopologyElement : ^TTopology;
   CurrentLine      : Integer;
@@ -1133,23 +1133,22 @@ begin
      then exit
      else;
 
-  tli := 0;
-  pTopologyElement := self.Items [tli];
-  {Проверка удаления единственного элемента}
-  if ((self.Count = 1) and
-      (pTopologyElement^.Line = -1) and (pTopologyElement^.SubLine = -1))
-     then begin
-          self.Clear;
-          exit;
-     end
-     else;
-  {-endif0}
+  {количество элементов больше нуля}
+  c := self.Count;
+  for tli := 1 to c do { нулевой, т.е. первый пропускаем }
+  begin
+     pTopologyElement := self.Items [tli-1];
+     CurrentLine      := pTopologyElement^.Line;
+     CurrentSubLine   := pTopologyElement^.SubLine;
+     if ((pTopologyElement^.Line = -1) and (pTopologyElement^.SubLine = -1))
+        then begin
+        end
+        else;
+     {-endif0}
+  end;
 
+  {
   tli := 0;
-  pTopologyElement := self.Items [tli];
-  CurrentLine      := pTopologyElement^.Line;
-  CurrentSubLine   := pTopologyElement^.SubLine;
-
   c := self.Count;
   for tli := 1 to c do { нулевой, т.е. первый пропускаем }
   begin
@@ -1184,7 +1183,6 @@ begin
      CurrentSubLine := pTopologyElement^.SubLine;
   end;
   }
-
 end;
 
 { ---------------------------------------------------------------------------- }

@@ -37,8 +37,10 @@ end;
 { ------------------------------------------------------------------------------- }
 { TSTANMain }
 TSTANMain = class(TForm)
-    bb_TopolineUp: TBitBtn;
-    bb_TopolineDown: TBitBtn;
+    bb_LineUp: TBitBtn;
+    bb_LineDown: TBitBtn;
+    bb_1SublineUp: TBitBtn;
+    bb_1SublineDown: TBitBtn;
     btn_NewLine: TButton;
     btn_DeleteLine: TButton;
     btn_EditLine: TButton;
@@ -83,7 +85,7 @@ TSTANMain = class(TForm)
     Dialog_OpenProject: TOpenDialog;
     StringGrid_TopologData: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
-    procedure bb_TopolineUpClick(Sender: TObject);
+    procedure bb_LineUpClick(Sender: TObject);
     procedure btn_DeleteLineClick(Sender: TObject);
     procedure btn_NewLineClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -232,8 +234,10 @@ begin
   btn_NewLine.Visible    := TRUE;
   btn_DeleteLine.Visible := TRUE;
   btn_EditLine.Visible   := TRUE;
-  bb_TopolineUp.Visible  := TRUE;
-  bb_TopolineDown.Visible:= TRUE;
+  bb_LineUp.Visible  := TRUE;
+  bb_LineDown.Visible:= TRUE;
+  bb_1SublineUp.Visible  := TRUE;
+  bb_1SublineDown.Visible:= TRUE;
 
   { есть dbf топология?}
   if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии dbf отсутствует }
@@ -581,8 +585,10 @@ begin
   btn_NewLine.Visible    := TRUE;
   btn_DeleteLine.Visible := TRUE;
   btn_EditLine.Visible   := TRUE;
-  bb_TopolineUp.Visible  := TRUE;
-  bb_TopolineDown.Visible:= TRUE;
+  bb_LineUp.Visible  := TRUE;
+  bb_LineDown.Visible:= TRUE;
+  bb_1SublineUp.Visible  := TRUE;
+  bb_1SublineDown.Visible:= TRUE;
 
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
@@ -867,14 +873,6 @@ begin
      else;
   {-endif0}
 
-  //if (topolog_row = 1)
-  //   then begin
-  //        Application.MessageBox ('Нельзя удалять первый элемент!', 'f.ck.p', MB_OK);
-  //        exit;
-  //   end
-  //   else;
-  //{-endif0}
-
   pTplg := TopologyList.Items [topolog_row-1]; { 0-шапка сетки, -1 == 0 элемент списка }
   pTplg^.Line    := -1;
   pTplg^.SubLine := -1;
@@ -893,7 +891,7 @@ begin
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 end;
 
-procedure TSTANMain.bb_TopolineUpClick(Sender: TObject);
+procedure TSTANMain.bb_LineUpClick(Sender: TObject);
 begin
 
 end;
@@ -909,8 +907,10 @@ begin
   btn_NewLine.Visible    := FALSE;
   btn_DeleteLine.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
-  bb_TopolineUp.Visible  := FALSE;
-  bb_TopolineDown.Visible:= FALSE;
+  bb_LineUp.Visible  := FALSE;
+  bb_LineDown.Visible:= FALSE;
+  bb_1SublineUp.Visible  := FALSE;
+  bb_1SublineDown.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -957,8 +957,10 @@ begin
   btn_NewLine.Visible    := FALSE;
   btn_DeleteLine.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
-  bb_TopolineUp.Visible  := FALSE;
-  bb_TopolineDown.Visible:= FALSE;
+  bb_LineUp.Visible  := FALSE;
+  bb_LineDown.Visible:= FALSE;
+  bb_1SublineUp.Visible  := FALSE;
+  bb_1SublineDown.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -1138,14 +1140,17 @@ begin
   for tli := 1 to c do { нулевой, т.е. первый пропускаем }
   begin
      pTopologyElement := self.Items [tli-1];
-     CurrentLine      := pTopologyElement^.Line;
-     CurrentSubLine   := pTopologyElement^.SubLine;
+     {CurrentLine      := pTopologyElement^.Line;}
+     {CurrentSubLine   := pTopologyElement^.SubLine;}
      if ((pTopologyElement^.Line = -1) and (pTopologyElement^.SubLine = -1))
-        then begin
-        end
-        else;
+        then break
+        else continue;
+     exit; { ничего не нашли }
      {-endif0}
   end;
+
+  {tli-1 указывает на элемент с "-1,-1"}
+  pTopologyElement := self.Items [tli-1];
 
   {
   tli := 0;

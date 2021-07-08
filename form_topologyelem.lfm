@@ -1,11 +1,11 @@
 object Form_TopologyElement: TForm_TopologyElement
-  Left = 2909
+  Left = 2246
   Height = 333
-  Top = 586
-  Width = 538
+  Top = 500
+  Width = 570
   Caption = 'Элемент топологии'
   ClientHeight = 333
-  ClientWidth = 538
+  ClientWidth = 570
   OnCreate = FormCreate
   Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
@@ -13,14 +13,14 @@ object Form_TopologyElement: TForm_TopologyElement
     Left = 8
     Height = 264
     Top = 8
-    Width = 520
+    Width = 552
     Caption = 'Элемент'
     ClientHeight = 244
-    ClientWidth = 516
+    ClientWidth = 548
     TabOrder = 0
     OnClick = GroupBox_ElementPropertiesClick
     object UpDown_Line: TUpDown
-      Left = 491
+      Left = 515
       Height = 23
       Top = 8
       Width = 17
@@ -29,7 +29,7 @@ object Form_TopologyElement: TForm_TopologyElement
       TabOrder = 0
     end
     object Edit_Line: TEdit
-      Left = 352
+      Left = 376
       Height = 23
       Top = 8
       Width = 140
@@ -38,7 +38,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Text = 'Edit_Line'
     end
     object Edit_LineElement: TEdit
-      Left = 352
+      Left = 376
       Height = 23
       Top = 48
       Width = 141
@@ -47,7 +47,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Text = 'Edit_LineElement'
     end
     object Edit_Name: TEdit
-      Left = 352
+      Left = 376
       Height = 23
       Top = 88
       Width = 141
@@ -55,7 +55,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Text = 'Edit_Name'
     end
     object Edit_ID: TEdit
-      Left = 352
+      Left = 376
       Height = 23
       Top = 128
       Width = 139
@@ -63,7 +63,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Text = 'Edit_ID'
     end
     object Edit_UVK: TEdit
-      Left = 352
+      Left = 376
       Height = 23
       Top = 208
       Width = 139
@@ -72,7 +72,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Text = 'Edit_UVK'
     end
     object UpDown_LineElement: TUpDown
-      Left = 491
+      Left = 515
       Height = 23
       Top = 48
       Width = 17
@@ -81,7 +81,7 @@ object Form_TopologyElement: TForm_TopologyElement
       TabOrder = 6
     end
     object UpDown_UVK: TUpDown
-      Left = 488
+      Left = 512
       Height = 22
       Top = 208
       Width = 17
@@ -90,7 +90,7 @@ object Form_TopologyElement: TForm_TopologyElement
       TabOrder = 7
     end
     object combobox_ID_Link: TComboBox
-      Left = 352
+      Left = 376
       Height = 23
       Top = 168
       Width = 155

@@ -37,13 +37,14 @@ end;
 { ------------------------------------------------------------------------------- }
 { TSTANMain }
 TSTANMain = class(TForm)
-    bb_LineUp: TBitBtn;
-    bb_LineDown: TBitBtn;
-    bb_1SublineUp: TBitBtn;
-    bb_1SublineDown: TBitBtn;
-    btn_NewLine: TButton;
-    btn_DeleteLine: TButton;
+    btn_LineUp: TBitBtn;
+    btn_LineDown: TBitBtn;
+    btn_SublineUp: TBitBtn;
+    btn_SublineDown: TBitBtn;
+    btn_NewSubline: TButton;
+    btn_DeleteSubline: TButton;
     btn_EditLine: TButton;
+    btn_NewLine: TButton;
 {Menu}
     Menu0_Dependency: TMenuItem;
     Menu_Project_Exit: TMenuItem;
@@ -84,10 +85,15 @@ TSTANMain = class(TForm)
     Dialog_CreateNewProject: TOpenDialog;
     Dialog_OpenProject: TOpenDialog;
     StringGrid_TopologData: TStringGrid;
+    StringGrid_ColumnsName: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
-    procedure bb_LineUpClick(Sender: TObject);
-    procedure btn_DeleteLineClick(Sender: TObject);
     procedure btn_NewLineClick(Sender: TObject);
+    procedure btn_SublineDownClick(Sender: TObject);
+    procedure btn_SublineUpClick(Sender: TObject);
+    procedure btn_DeleteSublineClick(Sender: TObject);
+    procedure btn_LineDownClick(Sender: TObject);
+    procedure btn_LineUpClick(Sender: TObject);
+    procedure btn_NewSublineClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Menu_DO_LampsClick(Sender: TObject);
@@ -201,18 +207,31 @@ begin
      else;
   {-endif1}
 
-  {оформляем таблицу}
-  StringGrid_TopologData.ColCount   := 7;
-  StringGrid_TopologData.RowCount   := 1;
-  StringGrid_TopologData.FixedCols  := 1;
-  StringGrid_TopologData.FixedRows  := 1;
-  StringGrid_TopologData.Cells[1,0] := 'N_STR';  {TopologDbf.FieldDefs [0].Name;}
-  StringGrid_TopologData.Cells[2,0] := 'N_EL';   {TopologDbf.FieldDefs [1].Name;}
-  StringGrid_TopologData.Cells[3,0] := 'NAME_R'; {TopologDbf.FieldDefs [2].Name;}
-  StringGrid_TopologData.Cells[4,0] := 'NAME_E'; {TopologDbf.FieldDefs [3].Name;}
-  StringGrid_TopologData.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
-  StringGrid_TopologData.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
+  {оформляем заголовки таблицы}
+  StringGrid_ColumnsName.ColCount   := 7;
+  StringGrid_ColumnsName.RowCount   := 1;
+  StringGrid_ColumnsName.FixedCols  := 1;
+  StringGrid_ColumnsName.FixedRows  := 1;
+  StringGrid_ColumnsName.Cells[1,0] := 'N_STR';  {TopologDbf.FieldDefs [0].Name;}
+  StringGrid_ColumnsName.Cells[2,0] := 'N_EL';   {TopologDbf.FieldDefs [1].Name;}
+  StringGrid_ColumnsName.Cells[3,0] := 'NAME_R'; {TopologDbf.FieldDefs [2].Name;}
+  StringGrid_ColumnsName.Cells[4,0] := 'NAME_E'; {TopologDbf.FieldDefs [3].Name;}
+  StringGrid_ColumnsName.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
+  StringGrid_ColumnsName.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
+  StringGrid_ColumnsName.ColWidths[0] := 50;
+  StringGrid_ColumnsName.ColWidths[1] :=
+    Trunc ((StringGrid_ColumnsName.Width - StringGrid_ColumnsName.ColWidths[0] - 20) / 6);
+  { 20 == width vertical scrollbar}
+  StringGrid_ColumnsName.ColWidths[2] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[3] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[4] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[5] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[6] := StringGrid_ColumnsName.ColWidths[1];
 
+  StringGrid_TopologData.ColCount   := 7;
+  StringGrid_TopologData.RowCount   := 0;
+  StringGrid_TopologData.FixedCols  := 1;
+  StringGrid_TopologData.FixedRows  := 0;
   StringGrid_TopologData.ColWidths[0] := 50;
   StringGrid_TopologData.ColWidths[1] :=
     Trunc ((StringGrid_TopologData.Width - StringGrid_TopologData.ColWidths[0] - 20) / 6);
@@ -226,18 +245,19 @@ begin
   (Menu_StanProject.Items [0]).Items [2].Enabled := TRUE;   { "Сохранить" }
   (Menu_StanProject.Items [0]).Items [3].Enabled := TRUE;   { "Сохранить как ..." }
   (Menu_StanProject.Items [0]).Items [4].Enabled := TRUE;   { "Закрыть" }
-
   (Menu_StanProject.Items [0]).Items [0].Enabled := FALSE;  { "Создать ..." }
   (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
 
   StringGrid_TopologData.Visible := TRUE;
-  btn_NewLine.Visible    := TRUE;
-  btn_DeleteLine.Visible := TRUE;
+  StringGrid_ColumnsName.Visible := TRUE;
+  btn_NewSubline.Visible    := TRUE;
+  btn_DeleteSubline.Visible := TRUE;
   btn_EditLine.Visible   := TRUE;
-  bb_LineUp.Visible  := TRUE;
-  bb_LineDown.Visible:= TRUE;
-  bb_1SublineUp.Visible  := TRUE;
-  bb_1SublineDown.Visible:= TRUE;
+  btn_LineUp.Visible  := TRUE;
+  btn_LineDown.Visible:= TRUE;
+  btn_SublineUp.Visible  := TRUE;
+  btn_SublineDown.Visible:= TRUE;
+  btn_NewLine.Visible:= TRUE;
 
   { есть dbf топология?}
   if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии dbf отсутствует }
@@ -289,7 +309,7 @@ begin
     TopologDbf.Destroy;
 
     ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
-    btn_NewLine.SetFocus;
+    btn_NewSubline.SetFocus;
   Except
     Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
   end;
@@ -300,47 +320,39 @@ end;
 { === Перезагружаем табличку-grid отображения топологии ====================== }
 procedure TSTANMain.ConfigureVisualGrid_Topology (var list_source : TTopologyList);
 var
-  ti      : longword;   { индексы доступа }
-  li      : longword;
-  str_tmp : AnsiString;
-  ptplg   : ^TTopology; { элемент списка }
+  strgrid_index : longword;   { индексы доступа }
+  li            : longword;
+  str_tmp       : AnsiString;
+  ptplg         : ^TTopology; { элемент списка }
 
 begin
   StringGrid_TopologData.Clean;
 
-  {оформляем таблицу}
-  StringGrid_TopologData.ColCount  := 7;
-  StringGrid_TopologData.RowCount  := 1;
-  StringGrid_TopologData.FixedCols := 1;
-  StringGrid_TopologData.FixedRows := 1;
-  StringGrid_TopologData.Cells[1,0] := 'N_STR';  {from TopologDbf.FieldDefs [0].Name;}
-  StringGrid_TopologData.Cells[2,0] := 'N_EL';   { ... TopologDbf.FieldDefs [1].Name;}
-  StringGrid_TopologData.Cells[3,0] := 'NAME_E'; { ... TopologDbf.FieldDefs [2].Name;}
-  StringGrid_TopologData.Cells[4,0] := 'NAME_R'; { ... TopologDbf.FieldDefs [3].Name;}
-  StringGrid_TopologData.Cells[5,0] := 'SL';     { ... TopologDbf.FieldDefs [4].Name;}
-  StringGrid_TopologData.Cells[6,0] := 'STOYKA'; { ... TopologDbf.FieldDefs [5].Name;}
+  {оформляем заголовки таблицы}
+  StringGrid_ColumnsName.ColCount   := 7;
+  StringGrid_ColumnsName.RowCount   := 1;
+  StringGrid_ColumnsName.FixedCols  := 1;
+  StringGrid_ColumnsName.FixedRows  := 1;
+  StringGrid_ColumnsName.Cells[1,0] := 'N_STR';  {TopologDbf.FieldDefs [0].Name;}
+  StringGrid_ColumnsName.Cells[2,0] := 'N_EL';   {TopologDbf.FieldDefs [1].Name;}
+  StringGrid_ColumnsName.Cells[3,0] := 'NAME_R'; {TopologDbf.FieldDefs [2].Name;}
+  StringGrid_ColumnsName.Cells[4,0] := 'NAME_E'; {TopologDbf.FieldDefs [3].Name;}
+  StringGrid_ColumnsName.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
+  StringGrid_ColumnsName.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
+  StringGrid_ColumnsName.ColWidths[0] := 50;
+  StringGrid_ColumnsName.ColWidths[1] :=
+    Trunc ((StringGrid_ColumnsName.Width - StringGrid_ColumnsName.ColWidths[0] - 20) / 6);
+  { 20 == width vertical scrollbar}
+  StringGrid_ColumnsName.ColWidths[2] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[3] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[4] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[5] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[6] := StringGrid_ColumnsName.ColWidths[1];
 
-  {формируем и форматируем таблицу}
-  StringGrid_TopologData.RowCount := list_source.Count + 1;
-  for ti := 1 to TopologyList.Count do
-  begin
-     li := ti - 1;
-     ptplg := TopologyList.Items[li];
-
-     str (ti, str_tmp);
-     StringGrid_TopologData.Cells[0,ti] := str_tmp;      { порядковый номер }
-     str (ptplg^.Line, str_tmp);
-     StringGrid_TopologData.Cells[1,ti] := str_tmp;      { №строки }
-     str (ptplg^.SubLine, str_tmp);
-     StringGrid_TopologData.Cells[2,ti] := str_tmp;      { №подстроки }
-     StringGrid_TopologData.Cells[3,ti] := ptplg^.Id;    { имя-идентификатор }
-     //str_tmp:=ConvertEncoding (ptplg^.Name, 'cp866', 'utf8');
-     StringGrid_TopologData.Cells[4,ti] := ptplg^.Name;  { имя }
-     StringGrid_TopologData.Cells[5,ti] := ptplg^.Link;  { переход-идентификатор }
-     str (ptplg^.UVK, str_tmp);
-     StringGrid_TopologData.Cells[6,ti] := str_tmp;       { стойка }
-  end;
-
+  StringGrid_TopologData.ColCount   := 7;
+  StringGrid_TopologData.RowCount   := 0;
+  StringGrid_TopologData.FixedCols  := 1;
+  StringGrid_TopologData.FixedRows  := 0;
   StringGrid_TopologData.ColWidths[0] := 50;
   StringGrid_TopologData.ColWidths[1] :=
     Trunc ((StringGrid_TopologData.Width - StringGrid_TopologData.ColWidths[0] - 20) / 6);
@@ -350,6 +362,27 @@ begin
   StringGrid_TopologData.ColWidths[4] := StringGrid_TopologData.ColWidths[1];
   StringGrid_TopologData.ColWidths[5] := StringGrid_TopologData.ColWidths[1];
   StringGrid_TopologData.ColWidths[6] := StringGrid_TopologData.ColWidths[1];
+
+  {формируем и форматируем таблицу}
+  StringGrid_TopologData.RowCount := list_source.Count;
+  for strgrid_index := 1 to TopologyList.Count do
+  begin
+     li := strgrid_index - 1;
+     ptplg := TopologyList.Items[li];
+
+     str (strgrid_index, str_tmp);
+     StringGrid_TopologData.Cells[0,li] := str_tmp;      { порядковый номер }
+     str (ptplg^.Line, str_tmp);
+     StringGrid_TopologData.Cells[1,li] := str_tmp;      { №строки }
+     str (ptplg^.SubLine, str_tmp);
+     StringGrid_TopologData.Cells[2,li] := str_tmp;      { №подстроки }
+     StringGrid_TopologData.Cells[3,li] := ptplg^.Id;    { имя-идентификатор }
+     //str_tmp:=ConvertEncoding (ptplg^.Name, 'cp866', 'utf8');
+     StringGrid_TopologData.Cells[4,li] := ptplg^.Name;  { имя }
+     StringGrid_TopologData.Cells[5,li] := ptplg^.Link;  { переход-идентификатор }
+     str (ptplg^.UVK, str_tmp);
+     StringGrid_TopologData.Cells[6,li] := str_tmp;       { стойка }
+  end;
 
 end;
 
@@ -581,14 +614,15 @@ begin
   (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
 
   StringGrid_TopologData.Visible := TRUE;
-
-  btn_NewLine.Visible    := TRUE;
-  btn_DeleteLine.Visible := TRUE;
+  StringGrid_ColumnsName.Visible := TRUE;
+  btn_NewSubline.Visible    := TRUE;
+  btn_DeleteSubline.Visible := TRUE;
   btn_EditLine.Visible   := TRUE;
-  bb_LineUp.Visible  := TRUE;
-  bb_LineDown.Visible:= TRUE;
-  bb_1SublineUp.Visible  := TRUE;
-  bb_1SublineDown.Visible:= TRUE;
+  btn_LineUp.Visible  := TRUE;
+  btn_LineDown.Visible:= TRUE;
+  btn_SublineUp.Visible  := TRUE;
+  btn_SublineDown.Visible:= TRUE;
+  btn_NewLine.Visible:= TRUE;
 
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
@@ -780,12 +814,12 @@ var
   ptplg         : ^TTopology;
 begin
   topolog_row := StringGrid_TopologData.Row;
-  if (topolog_row < 1)
+  if (topolog_row < 0)
      then exit
      else;
   {-endif0}
 
-  ptplg := TopologyList.Items[topolog_row-1];
+  ptplg := TopologyList.Items[topolog_row]; { нумерация с  }
 
   TopologyLine := ptplg^;
   Form_TopologyElement.TopologFieldsInit (TopologyLine);
@@ -815,7 +849,8 @@ begin
   Menu_Project_ExitClick (Sender);
 end;
 
-procedure TSTANMain.btn_NewLineClick(Sender: TObject);
+{=== Добавление новой подстроки ===============================================}
+procedure TSTANMain.btn_NewSublineClick(Sender: TObject);
 var
   topolog_row     : Integer;     { выбранная строка в списке }
   TopologyElement : TTopology;   { значения }
@@ -823,12 +858,331 @@ var
   TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
 {---}
 begin
-  topolog_row := StringGrid_TopologData.Row;
-  //if (topolog_row < 1)
-  //   then exit
-  //   else;
-  //{-endif0}
+  { память для нового элемента в список }
+  new (pTplg_new);
+  if (pTplg_new = NIL)
+     then begin
+          Application.MessageBox ('Нехватка памяти. TSTANMain.btn_NewSublineClick (...)', 'f.ck.p', MB_OK);
+          exit;
+     end
+     else;
+  {-endif0}
 
+  //TopologyElementReset (TopologyElement);
+  TopologyElement.Line    := 0;
+  TopologyElement.SubLine := 0;
+  TopologyElement.Id      := '';
+  TopologyElement.Name    := '';
+  TopologyElement.Link    := '';
+  TopologyElement.UVK     := 0;
+  pTplg_new^ :=  TopologyElement; { копия значения }
+
+  TopRow_old := StringGrid_TopologData.TopRow;    { первая отображаемая строка - сохраняем }
+
+  if (TopologyList.Count = 0)
+     Then topolog_row := 0
+     Else Begin
+          topolog_row := StringGrid_TopologData.Row;
+          topolog_row := topolog_row + 1;
+     End;
+  {-endif0}
+
+  TopologyList.Insert(topolog_row, pTplg_new);  { добавляем новоый элемент строки топологии }
+  TopologyList.TopologyListReorderAfterAdd;     { корректировка индексов }
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
+
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+end;
+
+{=== Удаление подстроки =======================================================}
+procedure TSTANMain.btn_DeleteSublineClick(Sender: TObject);
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  pTplg           : ^TTopology;
+  TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+  if (topolog_row < 0)
+     then exit
+     else;
+  {-endif0}
+
+  pTplg := TopologyList.Items [topolog_row];
+  pTplg^.Line    := 0;
+  pTplg^.SubLine := 0;
+  pTplg^.Id      := '';
+  pTplg^.Name    := '';
+  pTplg^.Link    := '';
+  pTplg^.UVK     := 0;
+
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  TopologyList.TopologyListReorderAfterRemove;  { корректировка индексов }
+  TopologyList.Delete(topolog_row);
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
+
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+end;
+
+{=== Перемещение строки зависимостей "наверх" =================================}
+procedure TSTANMain.btn_LineUpClick(Sender: TObject);
+{---}
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  pTplg           : ^TTopology;
+  LineValue       : Integer;
+  TopRow_old      : Integer;
+  pTplg2          : ^TTopology;
+  pTplg3          : ^TTopology;
+  c               : Integer;
+  tli             : Integer;
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+  if (topolog_row < 0) { нет ничего }
+     then exit
+     else;
+  {-endif0}
+
+  pTplg := TopologyList.Items [topolog_row];  { элеент строки }
+  LineValue := pTplg^.Line; { номер строки }
+
+  if (pTplg^.Line = 1) { нече двигать первую строку вверх }
+     then exit { Application.MessageBox ('Первая строка зависимостей!', 'ВНИМАНИЕ !', MB_OK); }
+     else;
+  {-endif0}
+
+  if (pTplg^.SubLine <> 1)
+     then begin
+          Application.MessageBox ('Для перемещения укажите первый элемент строки зависимостей!','ВНИМАНИЕ !', MB_OK);
+          exit;
+     end
+     else;
+  {-endif0}
+
+  { двигаем не первую строчку и стоим на певом элементе }
+  if (topolog_row = 0)
+     then begin { счет строчек зависимоcтей начинается не с "1" }
+          {ничего не делаем !!!!}
+     end
+     else begin
+          pTplg2 := TopologyList.Items [topolog_row-1];
+          if (pTplg2^.Line+1 = pTplg^.Line)
+             then begin
+                  Application.MessageBox ('Соседние строки зависимостей (это функция не объединения строк)!',
+                                          'ВНИМАНИЕ !', MB_OK);
+                  exit;
+             end
+             else;
+          {-endif1}
+     end;
+  {-endif0}
+
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  c := TopologyList.Count;
+  for tli := topolog_row to c-1 do
+  begin
+      pTplg3  := TopologyList.Items [tli];
+      if (pTplg3^.Line <> LineValue)
+         then break
+         else;
+      pTplg3^.Line := LineValue-1;
+  end;
+
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+
+end;
+
+{=== Перемещение строки зависимостей "вниз" ===================================}
+procedure TSTANMain.btn_LineDownClick(Sender: TObject);
+{---}
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  pTplg           : ^TTopology;
+  LineValue       : Integer;
+  TopRow_old      : Integer;
+  pTplg2          : ^TTopology;
+  pTplg3          : ^TTopology;
+  tli             : Integer;
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+  if (topolog_row < 0) { нет ничего }
+     then exit
+     else;
+  {-endif0}
+
+  pTplg := TopologyList.Items [topolog_row];  { элеент строки }
+  LineValue := pTplg^.Line; { номер строки }
+
+  if (topolog_row <> TopologyList.Count-1) { не последний элемент }
+     then begin
+          pTplg2 := TopologyList.Items [topolog_row+1];
+          if (pTplg2^.SubLine <> 1)
+             then begin
+                  Application.MessageBox ('Для перемещения укажите последний элемент строки зависимостей!',
+                                          'ВНИМАНИЕ !', MB_OK);
+                  exit;
+             end
+             else;
+          {-endif1}
+
+          if (pTplg2^.Line = pTplg^.Line+1)
+             then begin
+                  Application.MessageBox ('Соседние строки зависимостей (это функция не объединения строк)!',
+                                          'ВНИМАНИЕ !', MB_OK);
+                  exit;
+             end
+             else;
+          {-endif1}
+     end
+     else;
+  {-endif0}
+
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  LineValue := pTplg^.Line;
+  for tli := topolog_row downto 0 do
+  begin
+      pTplg3  := TopologyList.Items [tli];
+      if (pTplg3^.Line <> LineValue)
+         then break
+         else;
+      pTplg3^.Line := LineValue+1;
+  end;
+
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+
+end;
+
+{=== Перемещение подстроки зависимостей "вверх" ================================}
+procedure TSTANMain.btn_SublineUpClick(Sender: TObject);
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  pTplg           : ^TTopology;
+  pTplg2          : ^TTopology;
+  TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
+  ExchangeVal     : Integer;
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+
+  if (topolog_row <= 0)  { либо ничего нет, либо первый элемент }
+     then exit
+     else;
+  {-endif0}
+
+  pTplg  := TopologyList.Items [topolog_row];
+  pTplg2 := TopologyList.Items [topolog_row-1];
+
+  if (pTplg^.SubLine = 1)
+     then begin
+          Application.MessageBox ('Первый элемент строки зависимостей. При необходимости отредактируйте нумерацию вручную!',
+                                  'ВНИМАНИЕ !', MB_OK);
+          exit;
+     end
+     else;
+  {-endif0}
+
+  if (pTplg^.Line <> pTplg2^.Line)
+     then begin
+          Application.MessageBox ('Разные строки зависимостей. При необходимости отредактируйте нумерацию вручную!',
+                                  'ВНИМАНИЕ !', MB_OK);
+          exit;
+     end
+     else;
+  {-endif0}
+
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  { замена нумерации подстрок }
+  ExchangeVal     := pTplg2^.Subline;
+  pTplg2^.Subline := pTplg^.Subline;
+  pTplg^.Subline  := ExchangeVal;
+
+  { смена указателей }
+  TopologyList.Items [topolog_row-1] := pTplg;
+  TopologyList.Items [topolog_row]   := pTplg2;
+
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row-1;    { выделяем новую строку }
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+end;
+
+{=== Перемещение подстроки зависимостей "вверх" ===============================}
+procedure TSTANMain.btn_SublineDownClick(Sender: TObject);
+var
+  topolog_row     : Integer;     { выбранная строка в списке }
+  pTplg           : ^TTopology;
+  pTplg2          : ^TTopology;
+  TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
+  ExchangeVal     : Integer;
+{---}
+begin
+  topolog_row := StringGrid_TopologData.Row;
+
+  if (topolog_row < 0)  { ничего нет }
+     then exit
+     else;
+  {-endif0}
+
+  if (topolog_row = StringGrid_TopologData.RowCount-1)  { последний элемент }
+     then exit
+     else;
+  {-endif0}
+
+  pTplg  := TopologyList.Items [topolog_row];
+  pTplg2 := TopologyList.Items [topolog_row+1];
+
+  if (pTplg^.Line <> pTplg2^.Line)
+     then begin
+          Application.MessageBox ('Разные строки зависимостей. Отредактируйте нумерацию вручную!',
+                                  'ВНИМАНИЕ !', MB_OK);
+          exit;
+     end
+     else;
+  {-endif0}
+
+  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+  { замена нумерации подстрок }
+  ExchangeVal     := pTplg2^.Subline;
+  pTplg2^.Subline := pTplg^.Subline;
+  pTplg^.Subline  := ExchangeVal;
+
+  { смена указателей }
+  TopologyList.Items [topolog_row]   := pTplg2;
+  TopologyList.Items [topolog_row+1] := pTplg;
+
+  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
+
+  StringGrid_TopologData.Row := topolog_row+1;    { выделяем новую строку }
+  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+end;
+
+{=== Создание новой строки. Всегда добавляется в конец ========================}
+procedure TSTANMain.btn_NewLineClick(Sender: TObject);
+var
+  //topolog_row     : Integer;     { выбранная строка в списке }
+  TopologyElement : TTopology;   { значения }
+  pTplg_new       : ^TTopology;
+  pTplg2          : ^TTopology;
+  //TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
+{---}
+begin
   { память для нового элемента в список }
   new (pTplg_new);
   if (pTplg_new = NIL)
@@ -846,54 +1200,24 @@ begin
   TopologyElement.Name    := '';
   TopologyElement.Link    := '';
   TopologyElement.UVK     := 0;
+
+  {определяем номер последней строки}
+  if (TopologyList.Count > 0)
+     then begin
+          pTplg2 := TopologyList.Last;
+          TopologyElement.Line := pTplg2^.Line+1;
+     end
+     else begin
+          TopologyElement.Line := 1;
+     end;
+  {-endif0}
+  TopologyElement.SubLine := 1;
   pTplg_new^ :=  TopologyElement; { копия значения }
 
-  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
-
-  TopologyList.Insert(topolog_row, pTplg_new);  { добавляем новоый элемент строки топологии }
-  TopologyList.TopologyListReorderAfterAdd;     { корректировка индексов }
+  TopologyList.Add(pTplg_new);  { добавляем новый элемент строки топологии }
   ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
 
-  StringGrid_TopologData.Row := topolog_row+1;  { выделяем новую строку }
-
-  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
-end;
-
-
-procedure TSTANMain.btn_DeleteLineClick(Sender: TObject);
-var
-  topolog_row     : Integer;     { выбранная строка в списке }
-  pTplg           : ^TTopology;
-  TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
-{---}
-begin
-  topolog_row := StringGrid_TopologData.Row;
-  if (topolog_row < 1)
-     then exit
-     else;
-  {-endif0}
-
-  pTplg := TopologyList.Items [topolog_row-1]; { 0-шапка сетки, -1 == 0 элемент списка }
-  pTplg^.Line    := -1;
-  pTplg^.SubLine := -1;
-  pTplg^.Id      := '';
-  pTplg^.Name    := '';
-  pTplg^.Link    := '';
-  pTplg^.UVK     := 0;
-
-  TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
-
-  TopologyList.TopologyListReorderAfterRemove;  { корректировка индексов }
-  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
-
-  StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
-
-  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
-end;
-
-procedure TSTANMain.bb_LineUpClick(Sender: TObject);
-begin
-
+  StringGrid_TopologData.Row := TopologyList.Count;    { выделяем новую строку }
 end;
 
 {=== Создание (инициализация) главной формы ===================================}
@@ -904,13 +1228,15 @@ begin
   (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как" }
   (Menu_StanProject.Items [0]).Items [4].Enabled := FALSE;  { "Закрыть" }
   StringGrid_TopologData.Visible := FALSE;
-  btn_NewLine.Visible    := FALSE;
-  btn_DeleteLine.Visible := FALSE;
+  StringGrid_ColumnsName.Visible := FALSE;
+  btn_NewSubline.Visible    := FALSE;
+  btn_DeleteSubline.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
-  bb_LineUp.Visible  := FALSE;
-  bb_LineDown.Visible:= FALSE;
-  bb_1SublineUp.Visible  := FALSE;
-  bb_1SublineDown.Visible:= FALSE;
+  btn_LineUp.Visible  := FALSE;
+  btn_LineDown.Visible:= FALSE;
+  btn_SublineUp.Visible  := FALSE;
+  btn_SublineDown.Visible:= FALSE;
+  btn_NewLine.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -954,13 +1280,15 @@ begin
   (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как" }
   (Menu_StanProject.Items [0]).Items [4].Enabled := FALSE;  { "Закрыть" }
   StringGrid_TopologData.Visible := FALSE;
-  btn_NewLine.Visible    := FALSE;
-  btn_DeleteLine.Visible := FALSE;
+  StringGrid_ColumnsName.Visible := FALSE;
+  btn_NewSubline.Visible    := FALSE;
+  btn_DeleteSubline.Visible := FALSE;
   btn_EditLine.Visible   := FALSE;
-  bb_LineUp.Visible  := FALSE;
-  bb_LineDown.Visible:= FALSE;
-  bb_1SublineUp.Visible  := FALSE;
-  bb_1SublineDown.Visible:= FALSE;
+  btn_LineUp.Visible  := FALSE;
+  btn_LineDown.Visible:= FALSE;
+  btn_SublineUp.Visible  := FALSE;
+  btn_SublineDown.Visible:= FALSE;
+  btn_NewLine.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -1122,12 +1450,14 @@ end;
 {=== Корректировка индексов после удаления элемента (-1,-1) ===================}
 procedure TTopologyList.TopologyListReorderAfterRemove;
 var
-  tli              : Integer;
-  //tli2             : Integer;
-  c                : Integer;
-  pTopologyElement : ^TTopology;
-  CurrentLine      : Integer;
-  CurrentSubLine   : Integer;
+  tli                   : Integer;
+  tli2                  : Integer;
+  c                     : Integer;
+  pTopologyElement      : ^TTopology;
+  pTopologyElement_next : ^TTopology;
+  pTopologyElement2     : ^TTopology;
+  CurrentLine           : Integer;
+  CurrentSubLine        : Integer;
 
 begin
 
@@ -1142,52 +1472,50 @@ begin
      pTopologyElement := self.Items [tli-1];
      {CurrentLine      := pTopologyElement^.Line;}
      {CurrentSubLine   := pTopologyElement^.SubLine;}
-     if ((pTopologyElement^.Line = -1) and (pTopologyElement^.SubLine = -1))
+     if ((pTopologyElement^.Line = 0) and (pTopologyElement^.SubLine = 0))
         then break
         else continue;
      exit; { ничего не нашли }
-     {-endif0}
+     {-endif1}
   end;
 
-  {tli-1 указывает на элемент с "-1,-1"}
+  {tli-1 указывает на элемент с "0,0"}
   pTopologyElement := self.Items [tli-1];
 
-  {
-  tli := 0;
-  c := self.Count;
-  for tli := 1 to c do { нулевой, т.е. первый пропускаем }
-  begin
-     pTopologyElement := self.Items [tli];
-     if ((pTopologyElement^.Line = 0) and (pTopologyElement^.SubLine = 0))
-        then begin
-             pTopologyElement^.Line    := CurrentLine;
-             pTopologyElement^.SubLine := CurrentSubLine + 1;
+  if (tli = c) { последний элемент в списке - выходим }
+     then exit
+     else;
+  {-endif0}
 
-             CurrentSubLine := pTopologyElement^.SubLine;
+  { следующий элемент }
+  pTopologyElement_next := self.Items [tli];
 
-             if (tli+1 = c) {вставка самого последнего элемента}
-                then exit
-                else;
-             {-endif2}
+  if (pTopologyElement_next^.SubLine = 1) { удалили последний элемент строки - пересчет не нужен }
+     then exit   { да - последний }
+     else begin
+          CurrentLine := pTopologyElement_next^.Line;
 
-             for tli2 := tli+1 to c do { со следующего и "до упора" }
+          if (pTopologyElement_next^.SubLine = 2) { удалили первый элемент }
+             then begin
+                  CurrentSubLine := 1;
+             end
+             else begin { удалили где-то в середине }
+                  CurrentSubLine := pTopologyElement_next^.SubLine-1;
+             end;
+             {-endif1}
+
+             for tli2 := tli to c do { со следующего и "до упора" }
              begin
-                pTopologyElement := self.Items [tli2];
-                if (pTopologyElement^.Line = CurrentLine)
+                pTopologyElement2 := self.Items [tli2];
+                if (pTopologyElement2^.Line = CurrentLine)
                    then begin
-                        pTopologyElement^.SubLine := CurrentSubLine + 1;
-                        CurrentSubLine := pTopologyElement^.SubLine;
+                        pTopologyElement2^.SubLine := CurrentSubLine;
+                        CurrentSubLine := CurrentSubLine+1;
                    end
                    else exit;
-             end;
-        end
-        else;
-     {-endif1}
-
-     CurrentLine    := pTopologyElement^.Line;
-     CurrentSubLine := pTopologyElement^.SubLine;
-  end;
-  }
+             end; { end for := ... }
+     end;
+  {-endif0}
 end;
 
 { ---------------------------------------------------------------------------- }

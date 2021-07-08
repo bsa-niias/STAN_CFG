@@ -1,11 +1,12 @@
 object STANMain: TSTANMain
-  Left = 2380
-  Height = 640
-  Top = 337
+  Left = 1907
+  Height = 647
+  Top = 116
   Width = 801
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'
-  ClientHeight = 620
+  ClientHeight = 627
   ClientWidth = 801
   Menu = Menu_StanProject
   OnClose = FormClose
@@ -14,31 +15,39 @@ object STANMain: TSTANMain
   LCLVersion = '2.0.12.0'
   object StringGrid_TopologData: TStringGrid
     Left = 0
-    Height = 620
-    Top = 0
+    Height = 603
+    Top = 23
     Width = 681
     FixedCols = 0
+    FixedRows = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
     RowCount = 2
+    ScrollBars = ssVertical
     TabOrder = 0
     OnDblClick = StringGrid_TopologDataDblClick
   end
-  object btn_NewLine: TButton
+  object btn_NewSubline: TButton
     Left = 688
     Height = 25
+    Hint = 'Вставка нового элемента в строку зависимостей.'#13#10'Включается после выделеного элемента,'#13#10'с таким же значением "N_STR".'#13#10'Значения "N_EL" нового элемента увеличивается на "1"'#13#10'относительно выделенного элемента.'#13#10'(Значения "N_EL" остальных элементов строки пересчитываются).'
     Top = 8
     Width = 104
     Caption = 'Новый элемент'
-    OnClick = btn_NewLineClick
+    OnClick = btn_NewSublineClick
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 1
   end
-  object btn_DeleteLine: TButton
+  object btn_DeleteSubline: TButton
     Left = 688
     Height = 25
+    Hint = 'Удаление элемента строки зависимости.'#13#10'Номера элементов внутри строки, в которой удаляется элемент'#13#10'пересчитываются автоматически.'#13#10'Нумерация строк не затрагивается.'
     Top = 56
     Width = 104
-    Caption = 'Удалить'
-    OnClick = btn_DeleteLineClick
+    Caption = 'Удалить элемент'
+    OnClick = btn_DeleteSublineClick
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 2
   end
   object btn_EditLine: TButton
@@ -50,7 +59,7 @@ object STANMain: TSTANMain
     OnClick = StringGrid_TopologDataDblClick
     TabOrder = 3
   end
-  object bb_LineUp: TBitBtn
+  object btn_LineUp: TBitBtn
     Left = 712
     Height = 62
     Hint = 'Строку зависимости вверх'
@@ -349,12 +358,12 @@ object STANMain: TSTANMain
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
     }
     Margin = 3
-    OnClick = bb_LineUpClick
+    OnClick = btn_LineUpClick
     ParentShowHint = False
     ShowHint = True
     TabOrder = 4
   end
-  object bb_LineDown: TBitBtn
+  object btn_LineDown: TBitBtn
     Left = 712
     Height = 62
     Hint = 'Строку зависимости вниз'
@@ -653,11 +662,12 @@ object STANMain: TSTANMain
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
     }
     Margin = 3
+    OnClick = btn_LineDownClick
     ParentShowHint = False
     ShowHint = True
     TabOrder = 5
   end
-  object bb_1SublineUp: TBitBtn
+  object btn_SublineUp: TBitBtn
     Left = 712
     Height = 62
     Hint = 'Элемент строки вверх'
@@ -956,12 +966,12 @@ object STANMain: TSTANMain
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
     }
     Margin = 3
-    OnClick = bb_LineUpClick
+    OnClick = btn_SublineUpClick
     ParentShowHint = False
     ShowHint = True
     TabOrder = 6
   end
-  object bb_1SublineDown: TBitBtn
+  object btn_SublineDown: TBitBtn
     Left = 712
     Height = 62
     Hint = 'Элемент строки вниз'
@@ -1260,10 +1270,33 @@ object STANMain: TSTANMain
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
     }
     Margin = 3
-    OnClick = bb_LineUpClick
+    OnClick = btn_SublineDownClick
     ParentShowHint = False
     ShowHint = True
     TabOrder = 7
+  end
+  object btn_NewLine: TButton
+    Left = 688
+    Height = 25
+    Hint = 'Добавить новую строку зависимостей.'#13#10'(Вставка в конец списка с новым номером, '#13#10'увеличенным на "1" относительно поля "N_STR"'#13#10'последнего элемента).'
+    Top = 500
+    Width = 104
+    Caption = 'Новая строка'
+    OnClick = btn_NewLineClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+  end
+  object StringGrid_ColumnsName: TStringGrid
+    Left = 0
+    Height = 25
+    Top = 0
+    Width = 681
+    FixedCols = 0
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
+    RowCount = 2
+    ScrollBars = ssNone
+    TabOrder = 9
   end
   object Menu_StanProject: TMainMenu
     Left = 768

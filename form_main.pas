@@ -45,6 +45,7 @@ TSTANMain = class(TForm)
     btn_DeleteSubline: TButton;
     btn_EditLine: TButton;
     btn_NewLine: TButton;
+    btn_CheckDepend: TButton;
 {Menu}
     Menu0_Dependency: TMenuItem;
     Menu_Project_Exit: TMenuItem;
@@ -102,16 +103,14 @@ TSTANMain = class(TForm)
     procedure Menu_Project_CreateClick(Sender: TObject);
     procedure Menu_Project_ExitClick(Sender: TObject);
     procedure Menu_Project_OpenClick(Sender: TObject);
+    procedure Menu_Project_SaveAsClick(Sender: TObject);
     procedure Menu_Project_SaveClick(Sender: TObject);
     procedure StringGrid_TopologDataDblClick(Sender: TObject);
 
   private
-    //JObjCFG  : TJSONObject;
-    //JObjSTAN : TJSONObject;
-
-    CFG          : TTopologyCFG;
-
-    TopologyList : TTopologyList;
+    CFG            : TTopologyCFG;
+    TopologyList   : TTopologyList;
+    DependIsChange : Boolean;
 
   public
     {=Перезагружает StringGrid по списку Tlist=}
@@ -258,6 +257,7 @@ begin
   btn_SublineUp.Visible  := TRUE;
   btn_SublineDown.Visible:= TRUE;
   btn_NewLine.Visible:= TRUE;
+  btn_CheckDepend.Visible:= TRUE;
 
   { есть dbf топология?}
   if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии dbf отсутствует }
@@ -623,12 +623,22 @@ begin
   btn_SublineUp.Visible  := TRUE;
   btn_SublineDown.Visible:= TRUE;
   btn_NewLine.Visible:= TRUE;
+  btn_CheckDepend.Visible:= TRUE;
 
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
 
+procedure TSTANMain.Menu_Project_SaveAsClick(Sender: TObject);
+begin
+    DependIsChange := FALSE;
+end;
+
 procedure TSTANMain.Menu_Project_ExitClick(Sender: TObject);
 begin
+  if (DependIsChange = TRUE)
+     then begin
+     end
+     else;
   Application.Terminate;
 end;
 
@@ -804,6 +814,8 @@ begin
   WriteLn (StanPrjTopologyFD, '}');
 
   CloseFile (StanPrjTopologyFD);
+
+  DependIsChange := FALSE;
 end;
 
 {=== Редактирование элемента строки топологии =================================}
@@ -824,6 +836,8 @@ begin
   TopologyLine := ptplg^;
   Form_TopologyElement.TopologFieldsInit (TopologyLine);
   Form_TopologyElement.ShowModal;
+
+  DependIsChange := TRUE;
 end;
 
 (*===
@@ -894,6 +908,8 @@ begin
   StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
 
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+
+  DependIsChange := TRUE;
 end;
 
 {=== Удаление подстроки =======================================================}
@@ -927,6 +943,8 @@ begin
   StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
 
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+
+  DependIsChange := TRUE;
 end;
 
 {=== Перемещение строки зависимостей "наверх" =================================}
@@ -1000,6 +1018,7 @@ begin
   StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
+  DependIsChange := TRUE;
 end;
 
 {=== Перемещение строки зависимостей "вниз" ===================================}
@@ -1065,6 +1084,7 @@ begin
   StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
+  DependIsChange := TRUE;
 end;
 
 {=== Перемещение подстроки зависимостей "вверх" ================================}
@@ -1120,6 +1140,8 @@ begin
 
   StringGrid_TopologData.Row := topolog_row-1;    { выделяем новую строку }
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+
+  DependIsChange := TRUE;
 end;
 
 {=== Перемещение подстроки зависимостей "вверх" ===============================}
@@ -1171,6 +1193,8 @@ begin
 
   StringGrid_TopologData.Row := topolog_row+1;    { выделяем новую строку }
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+
+  DependIsChange := TRUE;
 end;
 
 {=== Создание новой строки. Всегда добавляется в конец ========================}
@@ -1218,6 +1242,8 @@ begin
   ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
 
   StringGrid_TopologData.Row := TopologyList.Count;    { выделяем новую строку }
+
+  DependIsChange := TRUE;
 end;
 
 {=== Создание (инициализация) главной формы ===================================}
@@ -1237,6 +1263,7 @@ begin
   btn_SublineUp.Visible  := FALSE;
   btn_SublineDown.Visible:= FALSE;
   btn_NewLine.Visible:= FALSE;
+  btn_CheckDepend.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -1247,6 +1274,8 @@ begin
   CFG.StanPrjFFName         := '';
   CFG.StanPrjTopologyFFName := '';
 
+  DependIsChange := FALSE;
+
   Caption :=  'БД Сервер->STAN (aka FoxPro) <NONE>';
 end;
 
@@ -1256,6 +1285,12 @@ var
   {dialog's}
   MsgRes           : TModalResult;      {message_execute_result}
 begin
+
+  if (DependIsChange = TRUE)
+     then begin
+     end
+     else;
+
   MsgRes := MessageDlg ('Работа с проектом ... ',
                         'Закрыть проект '+CFG.StanPrjName+' ('+
                         CFG.StanPrjFFName+') ?',
@@ -1289,6 +1324,7 @@ begin
   btn_SublineUp.Visible  := FALSE;
   btn_SublineDown.Visible:= FALSE;
   btn_NewLine.Visible:= FALSE;
+  btn_CheckDepend.Visible:= FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }

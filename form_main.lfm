@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 1907
+  Left = 1682
   Height = 647
-  Top = 116
+  Top = 311
   Width = 801
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
@@ -16,7 +16,7 @@ object STANMain: TSTANMain
   object StringGrid_TopologData: TStringGrid
     Left = 0
     Height = 603
-    Top = 23
+    Top = 24
     Width = 681
     FixedCols = 0
     FixedRows = 0
@@ -1298,6 +1298,14 @@ object STANMain: TSTANMain
     ScrollBars = ssNone
     TabOrder = 9
   end
+  object btn_CheckDepend: TButton
+    Left = 688
+    Height = 25
+    Top = 544
+    Width = 104
+    Caption = 'Проверка'
+    TabOrder = 10
+  end
   object Menu_StanProject: TMainMenu
     Left = 768
     Top = 576
@@ -1317,6 +1325,7 @@ object STANMain: TSTANMain
       end
       object Menu_Project_SaveAs: TMenuItem
         Caption = 'Сохранить как  (*.spr) ...'
+        OnClick = Menu_Project_SaveAsClick
       end
       object Menu_Project_Close: TMenuItem
         Caption = 'Закрыть'

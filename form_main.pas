@@ -9,7 +9,8 @@ uses
   Menus, Grids, UITypes, DBGrids, DBCtrls, Buttons, form_do_lamps_2color, dbf,
   DB, LConvEncoding,
   fpjson, jsonparser, jsonscanner,
-  stan_types, form_topologyelem;
+  stan_types, form_topologyelem,
+  form_uvk;
 
 { ------------------------------------------------------------------------------- }
 const
@@ -48,6 +49,9 @@ TSTANMain = class(TForm)
     btn_CheckDepend: TButton;
 {Menu}
     Menu0_Dependency: TMenuItem;
+    Menu0_Config: TMenuItem;
+    Menu_Config_UVK: TMenuItem;
+    Menu_Config_LINPZU: TMenuItem;
     Menu_Project_Exit: TMenuItem;
     Menu_Project_Close: TMenuItem;
     Menu_Project_SaveAs: TMenuItem;
@@ -97,6 +101,7 @@ TSTANMain = class(TForm)
     procedure btn_NewSublineClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure Menu_Config_UVKClick(Sender: TObject);
     procedure Menu_DO_LampsClick(Sender: TObject);
     procedure Menu_DO_Lamps_2CircleClick(Sender: TObject);
     procedure Menu_Project_CloseClick(Sender: TObject);
@@ -1277,6 +1282,11 @@ begin
   DependIsChange := FALSE;
 
   Caption :=  'БД Сервер->STAN (aka FoxPro) <NONE>';
+end;
+
+procedure TSTANMain.Menu_Config_UVKClick(Sender: TObject);
+begin
+   Form_UVKs.ShowModal;
 end;
 
 {=== Закрыть проект ===========================================================}

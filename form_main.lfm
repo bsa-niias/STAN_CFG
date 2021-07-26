@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 1682
+  Left = 1038
   Height = 647
-  Top = 311
+  Top = 245
   Width = 801
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
@@ -1334,6 +1334,16 @@ object STANMain: TSTANMain
       object Menu_Project_Exit: TMenuItem
         Caption = 'Выход'
         OnClick = Menu_Project_ExitClick
+      end
+    end
+    object Menu0_Config: TMenuItem
+      Caption = 'Конфигурация'
+      object Menu_Config_UVK: TMenuItem
+        Caption = 'Стойки'
+        OnClick = Menu_Config_UVKClick
+      end
+      object Menu_Config_LINPZU: TMenuItem
+        Caption = 'Объекты (LINPZU)'
       end
     end
     object Menu0_Dependency: TMenuItem

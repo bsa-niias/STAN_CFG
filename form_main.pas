@@ -10,7 +10,7 @@ uses
   DB, LConvEncoding,
   fpjson, jsonparser, jsonscanner,
   stan_types, form_topologyelem,
-  form_uvk;
+  form_uvk, form_linpzu;
 
 { ------------------------------------------------------------------------------- }
 const
@@ -19,11 +19,13 @@ const
 type
 {конфигурация окружения}
 TTopologyCFG = record
+                          {имя проекта - из имени файла}
   StanPrjName           : AnsiString;    { stan project name - usually station name}
   {StanPrjFName     : string;}
   StanPrjFFName         : AnsiString;    { full file name }
   StanPrjDirName        : AnsiString;    { directory name }
   StanPrjTopologyFFName : AnsiString;
+  StanPrjKolObjFFName   : AnsiString;
 end;
 
 {сортированный список элементов топологии,
@@ -48,16 +50,19 @@ TSTANMain = class(TForm)
     btn_NewLine: TButton;
     btn_CheckDepend: TButton;
 {Menu}
-    Menu0_Dependency: TMenuItem;
+    Menu0_Project: TMenuItem;
+    Menu_Project_Create: TMenuItem;
+    Menu_Project_Open: TMenuItem;
+    Menu_Project_Save: TMenuItem;
+    Menu_Project_SaveAs: TMenuItem;
+    Menu_Project_Close: TMenuItem;
+    Menu_Project_Exit: TMenuItem;
+    {}
     Menu0_Config: TMenuItem;
     Menu_Config_UVK: TMenuItem;
     Menu_Config_LINPZU: TMenuItem;
-    Menu_Project_Exit: TMenuItem;
-    Menu_Project_Close: TMenuItem;
-    Menu_Project_SaveAs: TMenuItem;
-    Menu_Project_Save: TMenuItem;
-    Menu_Project_Create: TMenuItem;
-    Menu_Project_Open: TMenuItem;
+    {}
+    Menu0_Dependency: TMenuItem;
     Menu_Dep_Signal: TMenuItem;
     Menu_Dep_DopStructure: TMenuItem;
     Menu_Dep_IN: TMenuItem;
@@ -73,7 +78,6 @@ TSTANMain = class(TForm)
     Menu_Dep_Switch: TMenuItem;
     Menu_Dep_Topology: TMenuItem;
     Menu_StanProject: TMainMenu;
-    Menu0_Project: TMenuItem;
     Menu0_Switches: TMenuItem;
     Menu0_DO: TMenuItem;
     Menu_DO_Lamps_2Circle: TMenuItem;
@@ -111,11 +115,15 @@ TSTANMain = class(TForm)
     procedure Menu_Project_SaveAsClick(Sender: TObject);
     procedure Menu_Project_SaveClick(Sender: TObject);
     procedure StringGrid_TopologDataDblClick(Sender: TObject);
+    procedure Menu_Config_LINPZU_Action (Sender: TObject);
 
   private
     CFG            : TTopologyCFG;
+    KO             : TKolObj;
     TopologyList   : TTopologyList;
     DependIsChange : Boolean;
+
+    procedure Menu_Config_LINPZUGen;
 
   public
     {=Перезагружает StringGrid по списку Tlist=}
@@ -197,6 +205,8 @@ begin
   {определяем каталог с проектом}
   CFG.StanPrjDirName := Dialog_CreateNewProject.InitialDir;
 
+  {имя файла объектов}
+  CFG.StanPrjKolObjFFName :=  CFG.StanPrjDirName+CFG.StanPrjName+'_kolobj.js';
   {имя файла топологии}
   CFG.StanPrjTopologyFFName :=  CFG.StanPrjDirName+CFG.StanPrjName+'_topolog.js';
 
@@ -251,6 +261,14 @@ begin
   (Menu_StanProject.Items [0]).Items [4].Enabled := TRUE;   { "Закрыть" }
   (Menu_StanProject.Items [0]).Items [0].Enabled := FALSE;  { "Создать ..." }
   (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
+  {Конфигурация}
+  KO.TUMS.Count := 0;
+  KO.MSTU.Count := 0;
+  (Menu_StanProject.Items [1]).Items [0].Enabled := TRUE;
+  (Menu_StanProject.Items [1]).Items [1].Enabled := TRUE;
+  (Menu_StanProject.Items [1]).Enabled := TRUE;
+
+  Menu_Config_LINPZUGen;
 
   StringGrid_TopologData.Visible := TRUE;
   StringGrid_ColumnsName.Visible := TRUE;
@@ -314,6 +332,10 @@ begin
     TopologDbf.Destroy;
 
     ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
+
+    Application.MessageBox ('В меню "Конфигурация" определите количество стоек и количество объектов!',
+                            'Загрузка', MB_OK);
+
     btn_NewSubline.SetFocus;
   Except
     Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
@@ -402,6 +424,7 @@ var
   PosFExt          : SizeInt;
   StanPrjFD        : TextFile;
   TopoFD           : TextFile;
+  KOFD             : TextFile;
   {json}
   json_parser      : TJSONParser;
   json_data        : TJSONData;
@@ -415,7 +438,8 @@ var
   TopologE         : EDatabaseError;
   {bd}
   TopologyLine     : TTopology;
-  tli              : longword;       { индекс цикла списка }
+  tli              : Longint;       { индекс цикла списка }
+  koi              : Longint;
   {..._topology.js}
   topology_count    : LongWord;
   topology_path     : String;
@@ -430,10 +454,11 @@ begin
   {-endif1}
 
   {"сбрасываем" все имена}
-  CFG.StanPrjName           := ''; {имя проекта}
+  CFG.StanPrjName           := ''; {имя проекта - из имени файла}
   CFG.StanPrjFFName         := '';
   CFG.StanPrjDirName        := '';
   CFG.StanPrjTopologyFFName := '';
+  CFG.StanPrjKolObjFFName   := '';
 
   {определяем название проекта}
   StanPrjFName    := Dialog_OpenProject.FileName;    { возвращается полный путь, даже если нет файла }
@@ -490,17 +515,104 @@ begin
   {Парсим структуру конфигурационного файла}
   json_parser    := TJSONParser.Create(json_strfull,DefaultOptions);
   json_data      := json_parser.Parse;// as TJSONObject;
+
+  {определяем каталог с файлами конфигурации}
+  json_key       :=  'STAN.Directory';
+  json_value     := json_data.FindPath (json_key).AsString;
+  CFG.StanPrjDirName := json_value;
+
+  {определяем файл с описанием топологии}
+  json_key       :=  'STAN.KolObj';
+  json_value     := json_data.FindPath (json_key).AsString;
+  //json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
+  CFG.StanPrjKolObjFFName :=  CFG.StanPrjDirName + json_value; //json_valueutf8;
+
   {определяем файл с описанием топологии}
   json_key       :=  'STAN.Topology';
   json_value     := json_data.FindPath (json_key).AsString;
   //json_valueutf8 := ConvertEncoding (json_value, 'cp866', 'utf8');
-  CFG.StanPrjTopologyFFName :=  json_value; //json_valueutf8;
-  {определяем каталог с файлом конфигурации}
-  json_key       :=  'STAN.Directory';
-  json_value     := json_data.FindPath (json_key).AsString;
-  CFG.StanPrjDirName := json_value;
+  CFG.StanPrjTopologyFFName :=  CFG.StanPrjDirName + json_value; //json_valueutf8;
+
   FreeAndNil (json_data);
   FreeAndNil (json_parser);
+
+  if (FileExists (CFG.StanPrjKolObjFFName) = TRUE) { файл топологии(.js) существует }
+     then begin
+          {чтение файла топологии в строку}
+          json_strline := '';
+          json_strfull := '';
+          AssignFile (KOFD, CFG.StanPrjKolObjFFName);
+          Reset (KOFD);
+          json_strfull := '';
+          while (not (eof (KOFD))) do
+          begin
+             ReadLn (KOFD, json_strline);
+             json_strfull := json_strfull + json_strline;
+          end; { while ... }
+          CloseFile (KOFD);
+          {преобразование кодировки}
+          json_strutf8 := ConvertEncoding (json_strfull, 'cp866', 'utf8');
+
+          {находим расположение файла топологии}
+          json_parser    := TJSONParser.Create(json_strutf8,DefaultOptions);
+          json_data      := json_parser.Parse;// as TJSONObject;
+          {определяем директорию с проектом}
+          json_key       := 'KolObj.TUMS.Count';
+          json_value     := json_data.FindPath (json_key).AsString;
+          KO.TUMS.Count  := StrToInt (json_value);
+          for koi := 1 to KO.TUMS.Count do
+          begin
+             json_key       := 'KolObj.TUMS.LINPZU.'+IntToStr (koi)+'.C';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.TUMS.Items [koi].C := StrToInt (json_value);
+             json_key       := 'KolObj.TUMS.LINPZU.'+IntToStr (koi)+'.E';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.TUMS.Items [koi].E := StrToInt (json_value);
+             json_key       := 'KolObj.TUMS.LINPZU.'+IntToStr (koi)+'.Q';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.TUMS.Items [koi].Q := StrToInt (json_value);
+             json_key       := 'KolObj.TUMS.LINPZU.'+IntToStr (koi)+'.F';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.TUMS.Items [koi].F := StrToInt (json_value);
+             json_key       := 'KolObj.TUMS.LINPZU.'+IntToStr (koi)+'.I';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.TUMS.Items [koi].I := StrToInt (json_value);
+             json_key       := 'KolObj.TUMS.LINPZU.'+IntToStr (koi)+'.L';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.TUMS.Items [koi].L := StrToInt (json_value);
+          end;
+
+          json_key       := 'KolObj.MSTU.Count';
+          json_value     := json_data.FindPath (json_key).AsString;
+          KO.MSTU.Count  := StrToInt (json_value);
+          for koi := 1 to KO.MSTU.Count do
+          begin
+             json_key       := 'KolObj.MSTU.LINPZU.'+IntToStr (koi)+'.C';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.MSTU.Items [koi].C := StrToInt (json_value);
+             json_key       := 'KolObj.MSTU.LINPZU.'+IntToStr (koi)+'.E';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.MSTU.Items [koi].E := StrToInt (json_value);
+             json_key       := 'KolObj.MSTU.LINPZU.'+IntToStr (koi)+'.Q';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.MSTU.Items [koi].Q := StrToInt (json_value);
+             json_key       := 'KolObj.MSTU.LINPZU.'+IntToStr (koi)+'.F';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.MSTU.Items [koi].F := StrToInt (json_value);
+             json_key       := 'KolObj.MSTU.LINPZU.'+IntToStr (koi)+'.I';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.MSTU.Items [koi].I := StrToInt (json_value);
+             json_key       := 'KolObj.MSTU.LINPZU.'+IntToStr (koi)+'.L';
+             json_value     := json_data.FindPath (json_key).AsString;
+             KO.MSTU.Items [koi].L := StrToInt (json_value);
+          end;
+
+          FreeAndNil (json_data);
+          FreeAndNil (json_parser);
+     end
+     else begin
+     end;
+  {-endif1}
 
   if (FileExists (CFG.StanPrjTopologyFFName) = TRUE) { файл топологии(.js) существует }
      then begin
@@ -606,6 +718,9 @@ begin
               TopologE.Destroy;
 
               ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
+
+              Application.MessageBox ('В меню "Конфигурация" определите количество стоек и количество объектов!',
+                                      'Загрузка', MB_OK);
           Except
               Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
           end;
@@ -617,6 +732,12 @@ begin
   (Menu_StanProject.Items [0]).Items [4].Enabled := TRUE;   { "Закрыть" }
   (Menu_StanProject.Items [0]).Items [0].Enabled := FALSE;  { "Создать ..." }
   (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
+  {Конфигурация}
+  (Menu_StanProject.Items [1]).Items [0].Enabled := TRUE;
+  (Menu_StanProject.Items [1]).Items [1].Enabled := TRUE;
+  (Menu_StanProject.Items [1]).Enabled := TRUE;
+
+  Menu_Config_LINPZUGen;
 
   StringGrid_TopologData.Visible := TRUE;
   StringGrid_ColumnsName.Visible := TRUE;
@@ -639,11 +760,23 @@ begin
 end;
 
 procedure TSTANMain.Menu_Project_ExitClick(Sender: TObject);
+var
+  {dialog's}
+  MsgRes  : TModalResult; {message_execute_result}
 begin
-  if (DependIsChange = TRUE)
-     then begin
-     end
+  {MsgRes := MessageDlg ('Работа с проектом ... ',
+                        'Закрыть проект '+CFG.StanPrjName+' ('+
+                        CFG.StanPrjFFName+') и выйти из программы ?',
+                        mtConfirmation, [mbYes, mbNo], '0');}
+
+  MsgRes := MessageDlg ('Работа с проектом ... ', 'Выйти из программы ?',
+                        mtConfirmation, [mbYes, mbNo], '0');
+
+  if (MsgRes <> mrYes)
+     then exit
      else;
+  {-endif1}
+
   Application.Terminate;
 end;
 
@@ -712,6 +845,10 @@ end;
 procedure TSTANMain.Menu_Project_SaveClick(Sender: TObject);
 var
   StanPrjFD          : TextFile;
+
+  StanPrjKolObjFD    : TextFile;
+  koi                : Longint;       { индекс цикла списка }
+
   StanPrjTopologyFD  : TextFile;
   tli                : Longint;       { индекс цикла списка }
   ptplg              : ^TTopology;
@@ -734,7 +871,8 @@ begin
   json_stan := TJSONObject.Create;
   json_stan.Add ('Name', CFG.StanPrjName);
   json_stan.Add ('Directory', CFG.StanPrjDirName);
-  json_stan.Add ('Topology', CFG.StanPrjTopologyFFName);
+  json_stan.Add ('KolObj', CFG.StanPrjName+'_kolobj.js' {CFG.StanPrjKolObjFFName});
+  json_stan.Add ('Topology', CFG.StanPrjName+'_topolog.js' {CFG.StanPrjTopologyFFName});
   json_cfg.Add ('STAN', json_stan);
   cfgstr_utf8  := json_cfg.FormatJSON([foSingleLineArray],5);
   cfgstr_cp866 := ConvertEncoding (cfgstr_utf8, 'utf8', 'cp866');
@@ -745,6 +883,84 @@ begin
   CloseFile (StanPrjFD);
   {FreeAndNil (json_stan);} {Удалится в json_cfg}
   FreeAndNil (json_cfg);
+
+  {запись ***_kolobj.js конфигурационного файла}
+  AssignFile (StanPrjKolObjFD, CFG.StanPrjKolObjFFName);
+  ReWrite (StanPrjKolObjFD);
+  WriteLn (StanPrjKolObjFD, '{');
+  WriteLn (StanPrjKolObjFD, '   "Type" : "JSON",');
+  WriteLn (StanPrjKolObjFD, '   "TimeStamp" : "' + DateToStr (Now)+' '+TimeToStr (Now)+'",');
+  WriteLn (StanPrjKolObjFD, '   "KolObj" : {');
+  WriteLn (StanPrjKolObjFD, '      "TUMS" : {');
+  WriteLn (StanPrjKolObjFD, '         "Count" : "'+IntToStr (KO.TUMS.Count)+'",');
+  WriteLn (StanPrjKolObjFD, '         "LINPZU" : {');
+  for koi := 1 to KO.TUMS.Count do
+  begin
+      str_tmp   := '"'+IntToStr (koi)+'" : {';
+      Write (StanPrjKolObjFD, '            '+str_tmp);
+
+      str_tmp  := '"C":"'+IntToStr (KO.TUMS.Items [koi].C)+'",';
+      str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+      Write (StanPrjKolObjFD, str_tmp1);
+      str_tmp  := '"E":"'+IntToStr (KO.TUMS.Items [koi].E)+'",';
+      str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+      Write (StanPrjKolObjFD, str_tmp1);
+      str_tmp  := '"Q":"'+IntToStr (KO.TUMS.Items [koi].Q)+'",';
+      str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+      Write (StanPrjKolObjFD, str_tmp1);
+      str_tmp  := '"F":"'+IntToStr (KO.TUMS.Items [koi].F)+'",';
+      str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+      Write (StanPrjKolObjFD, str_tmp1);
+      str_tmp  := '"I":"'+IntToStr (KO.TUMS.Items [koi].I)+'",';
+      str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+      Write (StanPrjKolObjFD, str_tmp1);
+      str_tmp  := '"L":"'+IntToStr (KO.TUMS.Items [koi].L)+'"';
+      str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+      Write (StanPrjKolObjFD, str_tmp1);
+
+      if (koi <> KO.TUMS.Count)
+         Then WriteLn (StanPrjKolObjFD, ' },')
+         Else WriteLn (StanPrjKolObjFD, ' }');
+  end;
+  WriteLn (StanPrjKolObjFD, '         }');
+  WriteLn (StanPrjKolObjFD, '      },');
+
+  WriteLn (StanPrjKolObjFD, '      "MSTU" : {');
+  WriteLn (StanPrjKolObjFD, '         "Count" : "'+IntToStr (KO.MSTU.Count)+'",');
+  WriteLn (StanPrjKolObjFD, '         "LINPZU" : {');
+  for koi := 1 to KO.MSTU.Count do
+  begin
+     str_tmp   := '"'+IntToStr (koi)+'" : {';
+     Write (StanPrjKolObjFD, '            '+str_tmp);
+
+     str_tmp  := '"C":"'+IntToStr (KO.MSTU.Items [koi].C)+'",';
+     str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+     Write (StanPrjKolObjFD, str_tmp1);
+     str_tmp  := '"E":"'+IntToStr (KO.MSTU.Items [koi].E)+'",';
+     str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+     Write (StanPrjKolObjFD, str_tmp1);
+     str_tmp  := '"Q":"'+IntToStr (KO.MSTU.Items [koi].Q)+'",';
+     str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+     Write (StanPrjKolObjFD, str_tmp1);
+     str_tmp  := '"F":"'+IntToStr (KO.MSTU.Items [koi].F)+'",';
+     str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+     Write (StanPrjKolObjFD, str_tmp1);
+     str_tmp  := '"I":"'+IntToStr (KO.MSTU.Items [koi].I)+'",';
+     str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+     Write (StanPrjKolObjFD, str_tmp1);
+     str_tmp  := '"L":"'+IntToStr (KO.MSTU.Items [koi].L)+'"';
+     str_tmp1 := Format ('%s%'+IntToStr (11-Length (str_tmp))+'s',[str_tmp,' ']);
+     Write (StanPrjKolObjFD, str_tmp1);
+
+      if (koi <> KO.MSTU.Count)
+         Then WriteLn (StanPrjKolObjFD, ' },')
+         Else WriteLn (StanPrjKolObjFD, ' }');
+  end;
+  WriteLn   (StanPrjKolObjFD, '         }');
+  WriteLn   (StanPrjKolObjFD, '      }');
+  WriteLn   (StanPrjKolObjFD, '   }');
+  WriteLn   (StanPrjKolObjFD, '}');
+  CloseFile (StanPrjKolObjFD);
 
   {запись ***_topology.js конфигурационного файла}
   AssignFile (StanPrjTopologyFD, CFG.StanPrjTopologyFFName);
@@ -757,7 +973,7 @@ begin
   Write (StanPrjTopologyFD, '      "Count" : "'+topostr+'"');
   if (TopologyList.Count > 0)
      then WriteLn (StanPrjTopologyFD, ',')
-     else;
+     else WriteLn (StanPrjTopologyFD, '');
 
   for tli := 1 to TopologyList.Count do
   begin
@@ -815,9 +1031,8 @@ begin
      WriteLn (StanPrjTopologyFD, topostr);
   end;
 
-  WriteLn (StanPrjTopologyFD, '   }');
-  WriteLn (StanPrjTopologyFD, '}');
-
+  WriteLn   (StanPrjTopologyFD, '   }');
+  WriteLn   (StanPrjTopologyFD, '}');
   CloseFile (StanPrjTopologyFD);
 
   DependIsChange := FALSE;
@@ -1253,11 +1468,19 @@ end;
 
 {=== Создание (инициализация) главной формы ===================================}
 procedure TSTANMain.FormCreate(Sender: TObject);
+var
+  koi : Integer;
+{===}
 begin
   { Все меню заблокированы пока, не откроется или создатся проект }
   (Menu_StanProject.Items [0]).Items [2].Enabled := FALSE;  { "Сохранить" }
   (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как" }
   (Menu_StanProject.Items [0]).Items [4].Enabled := FALSE;  { "Закрыть" }
+  {Конфигурация}
+  (Menu_StanProject.Items [1]).Items [0].Enabled := FALSE;
+  (Menu_StanProject.Items [1]).Items [1].Enabled := FALSE;
+  (Menu_StanProject.Items [1]).Enabled := FALSE;
+
   StringGrid_TopologData.Visible := FALSE;
   StringGrid_ColumnsName.Visible := FALSE;
   btn_NewSubline.Visible    := FALSE;
@@ -1273,34 +1496,145 @@ begin
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
 
-  TopologyList := TTopologyList.Create;
   CFG.StanPrjName           := '';
   CFG.StanPrjDirName        := '';
   CFG.StanPrjFFName         := '';
   CFG.StanPrjTopologyFFName := '';
+
+  KO.TUMS.Count := 0;
+  KO.MSTU.Count := 0;
+  For koi := 1 To 256 Do
+  Begin
+    KO.TUMS.Items [koi].C := 0;
+    KO.TUMS.Items [koi].E := 0;
+    KO.TUMS.Items [koi].Q := 0;
+    KO.TUMS.Items [koi].I := 0;
+    KO.TUMS.Items [koi].F := 0;
+    KO.TUMS.Items [koi].J := 0;
+    KO.TUMS.Items [koi].L := 0;
+
+    KO.MSTU.Items [koi].C := 0;
+    KO.MSTU.Items [koi].E := 0;
+    KO.MSTU.Items [koi].Q := 0;
+    KO.MSTU.Items [koi].I := 0;
+    KO.MSTU.Items [koi].F := 0;
+    KO.MSTU.Items [koi].J := 0;
+    KO.MSTU.Items [koi].L := 0;
+  End;
+  TopologyList := TTopologyList.Create;
 
   DependIsChange := FALSE;
 
   Caption :=  'БД Сервер->STAN (aka FoxPro) <NONE>';
 end;
 
+{Вызов меню - определения количества стоек ТУМС и МСТУ}
 procedure TSTANMain.Menu_Config_UVKClick(Sender: TObject);
 begin
-   Form_UVKs.ShowModal;
+   Form_UVKs.Init(KO.TUMS.Count, KO.MSTU.Count);
+
+   if (Form_UVKs.ShowModal = mrOk)
+      Then Begin
+           KO.TUMS.Count := Form_UVKs.TUMSs;
+           KO.MSTU.Count := Form_UVKs.MSTUs;
+      end
+      else;
+   {endif1}
+
+   {"Ручное" конфигурирование меню для определения LINPZU
+     и с ручными обработчиками}
+   Menu_Config_LINPZUGen;
+end;
+
+{Конфигурирование меню для определения LINPZU}
+procedure TSTANMain.Menu_Config_LINPZUGen;
+var
+  koi : Integer;
+  miUVKObj : TMenuItem;
+Begin
+  Menu_Config_LINPZU.Clear;
+  Menu_Config_LINPZU.Enabled:= FALSE;
+
+  for koi := 1 to KO.TUMS.Count do
+  begin
+     miUVKObj := TMenuItem.Create (self);
+     miUVKObj.Caption:='TUMS:' + IntToStr (koi);
+     miUVKObj.OnClick := @Menu_Config_LINPZU_Action;
+     miUVKObj.Tag := koi;
+     Menu_Config_LINPZU.Add(miUVKObj);
+  end;
+
+  for koi := 1 to KO.MSTU.Count do
+  begin
+     if ((koi = 1) And (Menu_Config_LINPZU.Count > 0))
+        Then Menu_Config_LINPZU.AddSeparator
+        Else;
+
+     miUVKObj := TMenuItem.Create (self);
+     miUVKObj.Caption:='MSTU:' + IntToStr (koi);
+     miUVKObj.OnClick := @Menu_Config_LINPZU_Action;
+     miUVKObj.Tag := koi;
+     Menu_Config_LINPZU.Add(miUVKObj);
+  end;
+
+  if (Menu_Config_LINPZU.Count > 0)
+     Then Menu_Config_LINPZU.Enabled:= TRUE
+     Else;
+End;
+
+{Обработчик формирования объектов LINPZU}
+procedure TSTANMain.Menu_Config_LINPZU_Action (Sender: TObject);
+Var
+  linpzu : PTLINPZU;
+Begin
+  {miUVKObj.Tag - LINPZU для ТУМС или МСТУ. Тип в Caption}
+  linpzu := NIL;
+  if (TMenuItem (Sender).Caption [1] = 'T')
+     Then Begin
+          linpzu := @KO.TUMS.Items [TMenuItem (Sender).Tag];
+          {Form_LINPZUValue.Init(@KO.TUMS.Items [TMenuItem (Sender).Tag]);}
+     End
+     Else
+  if (TMenuItem (Sender).Caption [1] = 'M')
+     Then Begin
+          linpzu := @KO.MSTU.Items [TMenuItem (Sender).Tag];
+          {Form_LINPZUValue.Init(@KO.MSTU.Items [TMenuItem (Sender).Tag]);}
+     End
+     Else;
+  {endif}
+
+  if (linpzu = NIL)
+     Then Begin
+          Application.MessageBox ('Ошибка программы (неопределен тип стойки)', 'f.ck.p', MB_OK);
+          Exit;
+     end
+     Else;
+  {endif}
+
+  {Ввод количества объектов}
+  Form_LINPZUValue.Init (linpzu);
+
+  if (Form_LINPZUValue.ShowModal = mrOk)
+     Then Begin
+          linpzu^.C := Form_LINPZUValue.get_C;
+          linpzu^.E := Form_LINPZUValue.get_E;
+          linpzu^.Q := Form_LINPZUValue.get_Q;
+          linpzu^.F := Form_LINPZUValue.get_F;
+          linpzu^.I := Form_LINPZUValue.get_I;
+          linpzu^.L := Form_LINPZUValue.get_L;
+     end
+     else;
+
 end;
 
 {=== Закрыть проект ===========================================================}
 procedure TSTANMain.Menu_Project_CloseClick(Sender: TObject);
 var
   {dialog's}
-  MsgRes           : TModalResult;      {message_execute_result}
+  MsgRes  : TModalResult; {message_execute_result}
+  koi : Longint;
+{===}
 begin
-
-  if (DependIsChange = TRUE)
-     then begin
-     end
-     else;
-
   MsgRes := MessageDlg ('Работа с проектом ... ',
                         'Закрыть проект '+CFG.StanPrjName+' ('+
                         CFG.StanPrjFFName+') ?',
@@ -1311,9 +1645,6 @@ begin
      else;
   {-endif1}
 
-  TopologyList.Clear;
-  StringGrid_TopologData.Clear;
-
   {"сбрасываем" все имена}
   CFG.StanPrjName           := ''; {имя проекта}
   CFG.StanPrjFFName         := '';
@@ -1321,9 +1652,6 @@ begin
   CFG.StanPrjTopologyFFName := '';
 
   { Все меню заблокированы пока, не откроется или создатся проект }
-  (Menu_StanProject.Items [0]).Items [2].Enabled := FALSE;  { "Сохранить" }
-  (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как" }
-  (Menu_StanProject.Items [0]).Items [4].Enabled := FALSE;  { "Закрыть" }
   StringGrid_TopologData.Visible := FALSE;
   StringGrid_ColumnsName.Visible := FALSE;
   btn_NewSubline.Visible    := FALSE;
@@ -1336,8 +1664,40 @@ begin
   btn_NewLine.Visible:= FALSE;
   btn_CheckDepend.Visible:= FALSE;
 
+  {Меню}
+  (Menu_StanProject.Items [0]).Items [2].Enabled := FALSE;  { "Сохранить" }
+  (Menu_StanProject.Items [0]).Items [3].Enabled := FALSE;  { "Сохранить как" }
+  (Menu_StanProject.Items [0]).Items [4].Enabled := FALSE;  { "Закрыть" }
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
+  {Конфигурация}
+  (Menu_StanProject.Items [1]).Items [0].Enabled := FALSE;
+  (Menu_StanProject.Items [1]).Items [1].Enabled := FALSE;
+  (Menu_StanProject.Items [1]).Enabled := FALSE;
+
+  KO.TUMS.Count := 0;
+  KO.MSTU.Count := 0;
+  For koi := 1 To 256 Do
+  Begin
+    KO.TUMS.Items [koi].C := 0;
+    KO.TUMS.Items [koi].E := 0;
+    KO.TUMS.Items [koi].Q := 0;
+    KO.TUMS.Items [koi].I := 0;
+    KO.TUMS.Items [koi].F := 0;
+    KO.TUMS.Items [koi].J := 0;
+    KO.TUMS.Items [koi].L := 0;
+
+    KO.MSTU.Items [koi].C := 0;
+    KO.MSTU.Items [koi].E := 0;
+    KO.MSTU.Items [koi].Q := 0;
+    KO.MSTU.Items [koi].I := 0;
+    KO.MSTU.Items [koi].F := 0;
+    KO.MSTU.Items [koi].J := 0;
+    KO.MSTU.Items [koi].L := 0;
+  End;
+
+  TopologyList.Clear;
+  StringGrid_TopologData.Clear;
 
   Caption :=  'БД Сервер->STAN (aka FoxPro) <NONE>';
 end;

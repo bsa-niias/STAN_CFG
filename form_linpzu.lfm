@@ -1,0 +1,199 @@
+object Form_LINPZU: TForm_LINPZU
+  Left = 2187
+  Height = 248
+  Top = 222
+  Width = 533
+  BorderIcons = [biSystemMenu]
+  Caption = 'LINPZU'
+  ClientHeight = 248
+  ClientWidth = 533
+  OnCreate = FormCreate
+  LCLVersion = '2.0.12.0'
+  object Edit_C: TEdit
+    Left = 225
+    Height = 23
+    Top = 19
+    Width = 96
+    OnKeyPress = Edit_CKeyPress
+    TabOrder = 0
+    Text = '0'
+  end
+  object UpDown_C: TUpDown
+    Left = 321
+    Height = 23
+    Top = 19
+    Width = 17
+    Associate = Edit_C
+    Max = 256
+    Min = 0
+    Position = 0
+    TabOrder = 1
+  end
+  object btnSave: TButton
+    Left = 360
+    Height = 25
+    Top = 159
+    Width = 144
+    Caption = 'Сохранить и выйти'
+    ModalResult = 1
+    OnClick = btnSaveClick
+    TabOrder = 2
+  end
+  object btnCancel: TButton
+    Left = 360
+    Height = 25
+    Top = 206
+    Width = 144
+    Caption = 'Отмена'
+    ModalResult = 2
+    TabOrder = 3
+  end
+  object lC: TLabel
+    Left = 19
+    Height = 15
+    Top = 25
+    Width = 116
+    Caption = 'Стрелки (LINPZU:C) -'
+    ParentColor = False
+  end
+  object lE: TLabel
+    Left = 19
+    Height = 15
+    Top = 61
+    Width = 120
+    Caption = 'Сигналы (LINPZU:E) - '
+    ParentColor = False
+  end
+  object Edit_E: TEdit
+    Left = 224
+    Height = 23
+    Top = 56
+    Width = 96
+    OnKeyPress = Edit_EKeyPress
+    TabOrder = 4
+    Text = '0'
+  end
+  object UpDown_E: TUpDown
+    Left = 320
+    Height = 23
+    Top = 56
+    Width = 17
+    Associate = Edit_E
+    Max = 256
+    Min = 0
+    Position = 0
+    TabOrder = 5
+  end
+  object lQ: TLabel
+    Left = 19
+    Height = 15
+    Top = 97
+    Width = 168
+    Caption = '"Объекты-Хрень" (LINPZU:Q) -'
+    ParentColor = False
+  end
+  object Edit_Q: TEdit
+    Left = 225
+    Height = 23
+    Top = 91
+    Width = 96
+    OnKeyPress = Edit_QKeyPress
+    TabOrder = 6
+    Text = '0'
+  end
+  object UpDown_Q: TUpDown
+    Left = 321
+    Height = 23
+    Top = 91
+    Width = 17
+    Associate = Edit_Q
+    Max = 256
+    Min = 0
+    Position = 0
+    TabOrder = 7
+  end
+  object lF: TLabel
+    Left = 19
+    Height = 15
+    Top = 133
+    Width = 196
+    Caption = 'Секции и участки пути (LINPZU:F) - '
+    ParentColor = False
+  end
+  object Edit_F: TEdit
+    Left = 225
+    Height = 23
+    Top = 128
+    Width = 96
+    OnKeyPress = Edit_FKeyPress
+    TabOrder = 8
+    Text = '0'
+  end
+  object UpDown_F: TUpDown
+    Left = 321
+    Height = 23
+    Top = 128
+    Width = 17
+    Associate = Edit_F
+    Max = 256
+    Min = 0
+    Position = 0
+    TabOrder = 9
+  end
+  object lI: TLabel
+    Left = 19
+    Height = 15
+    Top = 173
+    Width = 95
+    Caption = 'Пути (LINPZU:I) - '
+    ParentColor = False
+  end
+  object Edit_I: TEdit
+    Left = 225
+    Height = 23
+    Top = 168
+    Width = 96
+    OnKeyPress = Edit_IKeyPress
+    TabOrder = 10
+    Text = '0'
+  end
+  object UpDown_I: TUpDown
+    Left = 321
+    Height = 23
+    Top = 168
+    Width = 17
+    Associate = Edit_I
+    Max = 256
+    Min = 0
+    Position = 0
+    TabOrder = 11
+  end
+  object lL: TLabel
+    Left = 19
+    Height = 15
+    Top = 211
+    Width = 141
+    Caption = 'Диагностика (LINPZU:L) - '
+    ParentColor = False
+  end
+  object Edit_L: TEdit
+    Left = 225
+    Height = 23
+    Top = 208
+    Width = 96
+    OnKeyPress = Edit_LKeyPress
+    TabOrder = 12
+    Text = '0'
+  end
+  object UpDown_L: TUpDown
+    Left = 321
+    Height = 23
+    Top = 208
+    Width = 17
+    Associate = Edit_L
+    Max = 256
+    Min = 0
+    Position = 0
+    TabOrder = 13
+  end
+end

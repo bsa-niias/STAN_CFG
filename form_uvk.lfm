@@ -1,12 +1,14 @@
 object Form_UVK: TForm_UVK
-  Left = 164
+  Left = 2729
   Height = 207
-  Top = 143
+  Top = 255
   Width = 454
   BorderIcons = [biSystemMenu]
   Caption = 'Стойки'
   ClientHeight = 207
   ClientWidth = 454
+  OnCreate = FormCreate
+  OnShow = FormShow
   LCLVersion = '2.0.12.0'
   object gb_TUMS: TGroupBox
     Left = 17
@@ -68,20 +70,23 @@ object Form_UVK: TForm_UVK
       TabOrder = 1
     end
   end
-  object Button1: TButton
+  object btnSave: TButton
     Left = 296
     Height = 25
     Top = 120
     Width = 144
     Caption = 'Сохранить и выйти'
+    ModalResult = 1
+    OnClick = btnSaveClick
     TabOrder = 2
   end
-  object Button2: TButton
+  object btnCancel: TButton
     Left = 296
     Height = 25
     Top = 167
     Width = 144
     Caption = 'Отмена'
+    ModalResult = 2
     TabOrder = 3
   end
 end

@@ -12,10 +12,33 @@ type
 TTopology = record
   Line    : Integer;   { aka N_STR  (topolog.dbf) }
   SubLine : Integer;   { aka N_EL   (topolog.dbf) }
-  Name    : string; { aka NAME_R (topolog.dbf) }
-  Id      : string; { aka NAME_E (topolog.dbf) }
-  Link    : string; { aka N_STR  (topolog.dbf) mast be == .Id over .Line }
+  Name    : string;    { aka NAME_R (topolog.dbf) }
+  Id      : string;    { aka NAME_E (topolog.dbf) }
+  Link    : string;    { aka N_STR  (topolog.dbf) mast be == .Id over .Line }
   UVK     : Integer;   { aka STOYKA (topolog.dbf) }
+end;
+
+{Количество объектов (контроль/управление)}
+TLINPZU = record
+  C : Integer;
+  E : Integer;
+  Q : Integer;
+  F : Integer;
+  I : Integer;
+  L : Integer;
+  J : Integer;
+end;
+PTLINPZU = ^TLINPZU;
+
+TUVK = record
+  Count : Integer;
+  Items : array [1..256] of TLINPZU;
+end;
+
+{Количество ТУМС (МСТУ)}
+TKolObj = record
+  TUMS : TUVK;
+  MSTU : TUVK;
 end;
 
 procedure TopologyElementReset (var tplg : TTopology);

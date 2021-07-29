@@ -1,9 +1,10 @@
 {
      "Type" : "JSON",
-     "TimeStamp" : "23.06.2021 15:27:02",
+     "TimeStamp" : "29.07.2021 21:42:28",
      "STAN" : {
           "Name" : "orsk",
           "Directory" : "D:\\_02_DEV\\TUMS\\STAN_CFG\\cfg\\",
-          "Topology" : "D:\\_02_DEV\\TUMS\\STAN_CFG\\cfg\\orsk_topolog.js"
+          "KolObj" : "orsk_kolobj.js",
+          "Topology" : "orsk_topolog.js"
      }
 }

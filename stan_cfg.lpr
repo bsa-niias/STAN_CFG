@@ -7,8 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, dbflaz, datetimectrls,
-  form_main, form_do_lamps_2color, form_topologyelem, stan_types, form_uvk
+  Forms, dbflaz, datetimectrls, form_main, form_do_lamps_2color,
+  form_topologyelem, stan_types, form_uvk, form_linpzu
   { you can add units after this };
 
 {$R *.res}
@@ -21,6 +21,7 @@ begin
   Application.CreateForm(TForm_DO_Lamps_2Color, frm_DO_Lamps_2Color);
   Application.CreateForm(TForm_TopologyElement, Form_TopologyElement);
   Application.CreateForm(TForm_UVK, Form_UVKs);
+  Application.CreateForm(TForm_LINPZU, Form_LINPZUValue);
   Application.Run;
 end.
 

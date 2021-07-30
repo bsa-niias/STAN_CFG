@@ -21,8 +21,8 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="747"/>
-        <CursorPos X="51" Y="772"/>
+        <TopLine Value="805"/>
+        <CursorPos X="6" Y="843"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -53,7 +53,7 @@
         <Filename Value="stan_types.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="4"/>
-        <CursorPos X="9" Y="31"/>
+        <CursorPos X="3" Y="16"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -66,19 +66,32 @@
         <EditorIndex Value="3"/>
         <TopLine Value="18"/>
         <CursorPos Y="36"/>
-        <UsageCount Value="41"/>
+        <UsageCount Value="63"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit5>
       <Unit6>
+        <Filename Value="form_linpzu.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form_LINPZU"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="47"/>
+        <CursorPos X="36" Y="146"/>
+        <UsageCount Value="49"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit6>
+      <Unit7>
         <Filename Value="C:\lazarus\components\lazutils\lconvencoding.pas"/>
         <UnitName Value="LConvEncoding"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="63"/>
         <CursorPos X="22" Y="89"/>
-        <UsageCount Value="75"/>
-      </Unit6>
-      <Unit7>
+        <UsageCount Value="73"/>
+      </Unit7>
+      <Unit8>
         <Filename Value="C:\lazarus\lcl\dialogs.pp"/>
         <UnitName Value="Dialogs"/>
         <EditorIndex Value="8"/>
@@ -86,46 +99,46 @@
         <CursorPos X="73" Y="700"/>
         <UsageCount Value="101"/>
         <Loaded Value="True"/>
-      </Unit7>
-      <Unit8>
+      </Unit8>
+      <Unit9>
         <Filename Value="C:\lazarus\components\lazutils\uitypes.pas"/>
         <UnitName Value="UITypes"/>
         <EditorIndex Value="9"/>
         <CursorPos X="15" Y="18"/>
         <UsageCount Value="101"/>
         <Loaded Value="True"/>
-      </Unit8>
-      <Unit9>
+      </Unit9>
+      <Unit10>
         <Filename Value="C:\lazarus\lcl\include\menuitem.inc"/>
         <EditorIndex Value="6"/>
         <TopLine Value="64"/>
         <CursorPos Y="85"/>
-        <UsageCount Value="90"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
-      </Unit9>
-      <Unit10>
+      </Unit10>
+      <Unit11>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\sysutils\syspchh.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="10" Y="18"/>
-        <UsageCount Value="71"/>
-      </Unit10>
-      <Unit11>
+        <UsageCount Value="69"/>
+      </Unit11>
+      <Unit12>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\fpjson.pp"/>
         <EditorIndex Value="15"/>
         <TopLine Value="133"/>
         <CursorPos X="40" Y="156"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
-      </Unit11>
-      <Unit12>
+      </Unit12>
+      <Unit13>
         <Filename Value="C:\lazarus\lcl\include\customform.inc"/>
         <EditorIndex Value="13"/>
         <TopLine Value="2025"/>
         <CursorPos X="77" Y="2040"/>
         <UsageCount Value="104"/>
         <Loaded Value="True"/>
-      </Unit12>
-      <Unit13>
+      </Unit13>
+      <Unit14>
         <Filename Value="C:\lazarus\lcl\grids.pas"/>
         <UnitName Value="Grids"/>
         <EditorIndex Value="7"/>
@@ -133,226 +146,213 @@
         <CursorPos X="18" Y="1870"/>
         <UsageCount Value="105"/>
         <Loaded Value="True"/>
-      </Unit13>
-      <Unit14>
+      </Unit14>
+      <Unit15>
         <Filename Value="C:\lazarus\lcl\forms.pp"/>
         <UnitName Value="Forms"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="484"/>
         <CursorPos X="3" Y="70"/>
-        <UsageCount Value="43"/>
-      </Unit14>
-      <Unit15>
+        <UsageCount Value="41"/>
+      </Unit15>
+      <Unit16>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\sysutils\sysstr.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1054"/>
         <CursorPos X="34" Y="1097"/>
-        <UsageCount Value="12"/>
-      </Unit15>
-      <Unit16>
+        <UsageCount Value="10"/>
+      </Unit16>
+      <Unit17>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\jsonparser.pp"/>
         <EditorIndex Value="17"/>
         <TopLine Value="21"/>
         <CursorPos X="27" Y="28"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
-      </Unit16>
-      <Unit17>
+      </Unit17>
+      <Unit18>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\jsonscanner.pp"/>
         <EditorIndex Value="16"/>
         <TopLine Value="34"/>
         <CursorPos X="3" Y="58"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
-      </Unit17>
-      <Unit18>
+      </Unit18>
+      <Unit19>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\jsonreader.pp"/>
         <EditorIndex Value="18"/>
         <TopLine Value="35"/>
         <CursorPos X="46" Y="65"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
-      </Unit18>
-      <Unit19>
+      </Unit19>
+      <Unit20>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\inc\systemh.inc"/>
         <EditorIndex Value="19"/>
         <TopLine Value="448"/>
         <CursorPos X="35" Y="472"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
-      </Unit19>
-      <Unit20>
+      </Unit20>
+      <Unit21>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\objpas.pp"/>
         <EditorIndex Value="14"/>
         <TopLine Value="116"/>
         <CursorPos X="33" Y="139"/>
-        <UsageCount Value="99"/>
+        <UsageCount Value="109"/>
         <Loaded Value="True"/>
-      </Unit20>
-      <Unit21>
+      </Unit21>
+      <Unit22>
         <Filename Value="C:\lazarus\lcl\include\application.inc"/>
         <EditorIndex Value="12"/>
         <TopLine Value="2206"/>
         <CursorPos Y="2239"/>
-        <UsageCount Value="93"/>
+        <UsageCount Value="103"/>
         <Loaded Value="True"/>
-      </Unit21>
-      <Unit22>
+      </Unit22>
+      <Unit23>
         <Filename Value="C:\lazarus\lcl\include\control.inc"/>
         <EditorIndex Value="10"/>
         <TopLine Value="5017"/>
         <CursorPos X="20" Y="5044"/>
-        <UsageCount Value="93"/>
+        <UsageCount Value="103"/>
         <Loaded Value="True"/>
-      </Unit22>
-      <Unit23>
+      </Unit23>
+      <Unit24>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\sysutils\sysstrh.inc"/>
         <EditorIndex Value="5"/>
         <TopLine Value="88"/>
         <CursorPos X="10" Y="115"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="31"/>
         <Loaded Value="True"/>
-      </Unit23>
-      <Unit24>
-        <Filename Value="form_linpzu.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="Form_LINPZU"/>
-        <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="47"/>
-        <CursorPos X="36" Y="146"/>
-        <UsageCount Value="27"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit24>
       <Unit25>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\inc\objpash.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="198"/>
         <CursorPos X="8" Y="201"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit25>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="form_main.pas"/>
-        <Caret Line="556" TopLine="534"/>
+        <Caret Line="122" Column="15" TopLine="96"/>
       </Position1>
       <Position2>
         <Filename Value="form_main.pas"/>
-        <Caret Line="557" TopLine="534"/>
+        <Caret Line="1999" Column="17" TopLine="1962"/>
       </Position2>
       <Position3>
         <Filename Value="form_main.pas"/>
-        <Caret Line="559" TopLine="534"/>
+        <Caret Line="122" Column="15" TopLine="97"/>
       </Position3>
       <Position4>
         <Filename Value="form_main.pas"/>
-        <Caret Line="560" TopLine="534"/>
+        <Caret Line="32" Column="10" TopLine="17"/>
       </Position4>
       <Position5>
         <Filename Value="form_main.pas"/>
-        <Caret Line="561" TopLine="534"/>
+        <Caret Line="1840" Column="29" TopLine="1796"/>
       </Position5>
       <Position6>
         <Filename Value="form_main.pas"/>
-        <Caret Line="563" TopLine="534"/>
+        <Caret Line="1841" TopLine="1796"/>
       </Position6>
       <Position7>
         <Filename Value="form_main.pas"/>
-        <Caret Line="564" TopLine="534"/>
+        <Caret Line="1842" TopLine="1796"/>
       </Position7>
       <Position8>
         <Filename Value="form_main.pas"/>
-        <Caret Line="565" TopLine="534"/>
+        <Caret Line="1844" TopLine="1798"/>
       </Position8>
       <Position9>
         <Filename Value="form_main.pas"/>
-        <Caret Line="553" TopLine="435"/>
+        <Caret Line="1845" TopLine="1799"/>
       </Position9>
       <Position10>
         <Filename Value="form_main.pas"/>
-        <Caret Line="875" Column="12" TopLine="896"/>
+        <Caret Line="1846" TopLine="1800"/>
       </Position10>
       <Position11>
         <Filename Value="form_main.pas"/>
-        <Caret Line="448" Column="3" TopLine="335"/>
+        <Caret Line="1847" TopLine="1801"/>
       </Position11>
       <Position12>
         <Filename Value="form_main.pas"/>
-        <Caret Line="844" TopLine="817"/>
+        <Caret Line="1848" TopLine="1802"/>
       </Position12>
       <Position13>
         <Filename Value="form_main.pas"/>
-        <Caret Line="609" Column="30" TopLine="569"/>
+        <Caret Line="1849" TopLine="1803"/>
       </Position13>
       <Position14>
         <Filename Value="form_main.pas"/>
-        <Caret Line="603" Column="43" TopLine="566"/>
+        <Caret Line="1850" TopLine="1804"/>
       </Position14>
       <Position15>
         <Filename Value="form_main.pas"/>
-        <Caret Line="592" Column="17" TopLine="570"/>
+        <Caret Line="1851" TopLine="1805"/>
       </Position15>
       <Position16>
         <Filename Value="form_main.pas"/>
-        <Caret Line="523" Column="9" TopLine="510"/>
+        <Caret Line="1853" TopLine="1826"/>
       </Position16>
       <Position17>
         <Filename Value="form_main.pas"/>
-        <Caret Line="859" TopLine="844"/>
+        <Caret Line="1854" TopLine="1826"/>
       </Position17>
       <Position18>
         <Filename Value="form_main.pas"/>
-        <Caret Line="860" TopLine="844"/>
+        <Caret Line="1855" TopLine="1826"/>
       </Position18>
       <Position19>
         <Filename Value="form_main.pas"/>
-        <Caret Line="838" Column="31" TopLine="807"/>
+        <Caret Line="1856" TopLine="1826"/>
       </Position19>
       <Position20>
         <Filename Value="form_main.pas"/>
-        <Caret Line="853" Column="3" TopLine="961"/>
+        <Caret Line="1858" TopLine="1826"/>
       </Position20>
       <Position21>
         <Filename Value="form_main.pas"/>
-        <Caret Line="443" Column="32" TopLine="494"/>
+        <Caret Line="1861" TopLine="1826"/>
       </Position21>
       <Position22>
         <Filename Value="form_main.pas"/>
-        <Caret Line="1667" Column="38" TopLine="1618"/>
+        <Caret Line="1853" Column="34" TopLine="1826"/>
       </Position22>
       <Position23>
-        <Filename Value="form_main.pas"/>
-        <Caret Line="1512" TopLine="1467"/>
+        <Filename Value="stan_types.pas"/>
+        <Caret Line="26" Column="44"/>
       </Position23>
       <Position24>
         <Filename Value="form_main.pas"/>
-        <Caret Line="1688" TopLine="1649"/>
+        <Caret Line="1930" Column="25" TopLine="1901"/>
       </Position24>
       <Position25>
         <Filename Value="form_main.pas"/>
-        <Caret Line="24" Column="17"/>
+        <Caret Line="836" Column="21" TopLine="806"/>
       </Position25>
       <Position26>
         <Filename Value="form_main.pas"/>
-        <Caret Line="764" TopLine="741"/>
+        <Caret Line="158" Column="32" TopLine="131"/>
       </Position26>
       <Position27>
         <Filename Value="form_main.pas"/>
-        <Caret Line="1631" TopLine="1605"/>
+        <Caret Line="456" Column="27" TopLine="410"/>
       </Position27>
       <Position28>
         <Filename Value="form_main.pas"/>
-        <Caret Line="778" TopLine="741"/>
+        <Caret Line="773" Column="31" TopLine="728"/>
       </Position28>
       <Position29>
         <Filename Value="form_main.pas"/>
-        <Caret Line="769" Column="3" TopLine="742"/>
       </Position29>
       <Position30>
         <Filename Value="form_main.pas"/>
-        <Caret Line="1633" TopLine="1628"/>
+        <Caret Line="352" TopLine="306"/>
       </Position30>
     </JumpHistory>
     <RunParams>

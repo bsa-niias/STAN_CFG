@@ -9,6 +9,17 @@ uses
 
 type
 { ------------------------------------------------------------------------------- }
+{конфигурация окружения}
+TTopologyCFG = record
+                          {имя проекта - из имени файла}
+  StanPrjName         : AnsiString;    { stan project name - usually station name}
+  StanPrjFFName       : AnsiString;    { full file name }
+  StanPrjDirName      : AnsiString;    { directory name }
+  StanPrjTopologyName : AnsiString;
+  StanPrjKolObjName   : AnsiString;
+end;
+
+{ ------------------------------------------------------------------------------- }
 TTopology = record
   Line    : Integer;   { aka N_STR  (topolog.dbf) }
   SubLine : Integer;   { aka N_EL   (topolog.dbf) }

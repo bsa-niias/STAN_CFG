@@ -1,7 +1,7 @@
 object Form_LINPZU: TForm_LINPZU
-  Left = 2187
+  Left = 2269
   Height = 248
-  Top = 222
+  Top = 246
   Width = 533
   BorderIcons = [biSystemMenu]
   Caption = 'LINPZU'

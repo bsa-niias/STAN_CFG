@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 2068
+  Left = 1994
   Height = 647
-  Top = 285
+  Top = 337
   Width = 801
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
@@ -1307,8 +1307,8 @@ object STANMain: TSTANMain
     TabOrder = 10
   end
   object Menu_StanProject: TMainMenu
-    Left = 768
-    Top = 576
+    Left = 416
+    Top = 568
     object Menu0_Project: TMenuItem
       Caption = 'Проект'
       object Menu_Project_Create: TMenuItem
@@ -1436,13 +1436,17 @@ object STANMain: TSTANMain
   object Dialog_CreateNewProject: TOpenDialog
     Title = 'STAN PRJ'
     Options = [ofViewDetail]
-    Left = 688
-    Top = 576
+    Left = 536
+    Top = 568
   end
   object Dialog_OpenProject: TOpenDialog
     Filter = 'STAN Projects (*.spr)|*.spr'
     Options = [ofViewDetail]
-    Left = 728
-    Top = 576
+    Left = 624
+    Top = 568
+  end
+  object Dialog_SaveAsProject: TSaveDialog
+    Left = 296
+    Top = 568
   end
 end

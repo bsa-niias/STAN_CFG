@@ -39,6 +39,9 @@ TSTANMain = class(TForm)
     btn_EditLine: TButton;
     btn_NewLine: TButton;
     btn_CheckDepend: TButton;
+    Btn_Find: TButton;
+    Btn_FindNext: TButton;
+    Edit_FindText: TEdit;
 {Menu}
     Menu0_Project: TMenuItem;
     Menu_Project_Create: TMenuItem;
@@ -87,6 +90,8 @@ TSTANMain = class(TForm)
     StringGrid_TopologData: TStringGrid;
     StringGrid_ColumnsName: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
+    procedure Btn_FindClick(Sender: TObject);
+    procedure Btn_FindNextClick(Sender: TObject);
     procedure btn_NewLineClick(Sender: TObject);
     procedure btn_SublineDownClick(Sender: TObject);
     procedure btn_SublineUpClick(Sender: TObject);
@@ -94,6 +99,7 @@ TSTANMain = class(TForm)
     procedure btn_LineDownClick(Sender: TObject);
     procedure btn_LineUpClick(Sender: TObject);
     procedure btn_NewSublineClick(Sender: TObject);
+    procedure Edit_FindTextChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Menu_Config_UVKClick(Sender: TObject);
@@ -113,6 +119,8 @@ TSTANMain = class(TForm)
     KO             : TKolObj;
     TopologyList   : TTopologyList;
     DependIsChange : Boolean;
+    {индекс поиска для "найти" и "искать дальше"}
+    SearchIndex    : Integer;
 
     procedure Menu_Config_LINPZUGen;
     procedure SaveProject (var _cfg : TTopologyCFG);
@@ -288,6 +296,14 @@ begin
   btn_SublineDown.Visible        := TRUE;
   btn_NewLine.Visible            := TRUE;
   btn_CheckDepend.Visible        := TRUE;
+  {Поиск}
+  Btn_Find.Visible := TRUE;
+  Btn_FindNext.Visible := TRUE;
+  Edit_FindText.Visible := TRUE;
+  Btn_Find.Enabled := FALSE;
+  Btn_FindNext.Enabled := FALSE;
+  Edit_FindText.Enabled := TRUE;
+  Edit_FindText.Text := '';
 
   { есть dbf топология?}
   if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии dbf отсутствует }
@@ -757,6 +773,14 @@ begin
   btn_SublineDown.Visible:= TRUE;
   btn_NewLine.Visible:= TRUE;
   btn_CheckDepend.Visible:= TRUE;
+  {Поиск}
+  Btn_Find.Visible := TRUE;
+  Btn_FindNext.Visible := TRUE;
+  Edit_FindText.Visible := TRUE;
+  Btn_Find.Enabled := FALSE;
+  Btn_FindNext.Enabled := FALSE;
+  Edit_FindText.Enabled := TRUE;
+  Edit_FindText.Text := '';
 
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
@@ -1020,6 +1044,19 @@ begin
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
   DependIsChange := TRUE;
+end;
+
+procedure TSTANMain.Edit_FindTextChange(Sender: TObject);
+begin
+  If (Edit_FindText.Text <> '')
+     Then Begin
+          Btn_Find.Enabled := TRUE;
+          Btn_FindNext.Enabled := TRUE;
+     End
+     Else Begin
+          Btn_Find.Enabled := FALSE;
+          Btn_FindNext.Enabled := FALSE;
+     End;
 end;
 
 {=== Удаление подстроки =======================================================}
@@ -1356,6 +1393,66 @@ begin
   DependIsChange := TRUE;
 end;
 
+procedure TSTANMain.Btn_FindClick(Sender: TObject);
+{===}
+var
+  tplist_count : Integer;
+  tplist_index : Integer;
+  tpl_element  : PTTopology;
+  st           : String;
+{===}
+begin
+  st := Edit_FindText.Text;
+  tplist_count := TopologyList.Count;
+  For tplist_index := 1 To tplist_count Do
+  Begin
+     tpl_element := TopologyList.Items[tplist_index-1];
+     If (tpl_element = NIL)
+        Then Continue
+        Else;
+
+     If (Pos (st, tpl_element^.Name) <> 0)
+        Then Begin
+             SearchIndex := tplist_index;
+             StringGrid_TopologData.Row := tplist_index-1;    { выделяем новую строку }
+             StringGrid_TopologData.TopRow := tplist_index-1; { восстанавливаем первую отображаемую строку }
+             Exit;
+        End
+        Else;
+  End;
+  Application.MessageBox ('Нет такого (проверьте регистр)!', 'Поиск', MB_OK);
+End;
+
+procedure TSTANMain.Btn_FindNextClick(Sender: TObject);
+{===}
+var
+  tplist_count : Integer;
+  tplist_index : Integer;
+  tpl_element  : PTTopology;
+  st           : String;
+{===}
+begin
+  st := Edit_FindText.Text;
+  tplist_count := TopologyList.Count;
+  For tplist_index := SearchIndex+1 To tplist_count Do
+  Begin
+     tpl_element := TopologyList.Items[tplist_index-1];
+     If (tpl_element = NIL)
+        Then Continue
+        Else;
+
+     If (Pos (st, tpl_element^.Name) <> 0)
+        Then Begin
+             SearchIndex := tplist_index;
+             StringGrid_TopologData.Row := tplist_index-1;    { выделяем новую строку }
+             StringGrid_TopologData.TopRow := tplist_index-1; { восстанавливаем первую отображаемую строку }
+             Exit;
+        End
+        Else;
+  End;
+  Application.MessageBox ('Больше нет!', 'Поиск', MB_OK);
+End;
+
 {=== Создание (инициализация) главной формы ===================================}
 procedure TSTANMain.FormCreate(Sender: TObject);
 var
@@ -1382,6 +1479,12 @@ begin
   btn_SublineDown.Visible:= FALSE;
   btn_NewLine.Visible:= FALSE;
   btn_CheckDepend.Visible:= FALSE;
+  {Поиск}
+  Btn_Find.Visible := FALSE;
+  Btn_FindNext.Visible := FALSE;
+  Edit_FindText.Visible := FALSE;
+  Edit_FindText.Text := '';
+  SearchIndex := 0;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -1554,6 +1657,14 @@ begin
   btn_SublineDown.Visible:= FALSE;
   btn_NewLine.Visible:= FALSE;
   btn_CheckDepend.Visible:= FALSE;
+  {Поиск}
+  Btn_Find.Visible := FALSE;
+  Btn_FindNext.Visible := FALSE;
+  Edit_FindText.Visible := FALSE;
+  Btn_Find.Enabled := FALSE;
+  Btn_FindNext.Enabled := FALSE;
+  Edit_FindText.Enabled := FALSE;
+  Edit_FindText.Text := '';
 
   {Меню}
   (Menu_StanProject.Items [0]).Items [2].Enabled := FALSE;  { "Сохранить" }

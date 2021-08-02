@@ -28,6 +28,7 @@ TTopology = record
   Link    : string;    { aka N_STR  (topolog.dbf) mast be == .Id over .Line }
   UVK     : Integer;   { aka STOYKA (topolog.dbf) }
 end;
+PTTopology = ^TTopology;
 
 {Количество объектов (контроль/управление)}
 TLINPZU = record

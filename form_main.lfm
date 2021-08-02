@@ -1,12 +1,12 @@
 object STANMain: TSTANMain
-  Left = 1538
-  Height = 647
-  Top = 356
+  Left = 1085
+  Height = 710
+  Top = 18
   Width = 801
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'
-  ClientHeight = 627
+  ClientHeight = 690
   ClientWidth = 801
   Menu = Menu_StanProject
   OnClose = FormClose
@@ -1305,6 +1305,35 @@ object STANMain: TSTANMain
     Width = 104
     Caption = 'Проверка'
     TabOrder = 10
+  end
+  object Btn_Find: TButton
+    Left = 280
+    Height = 25
+    Hint = 'Поиск по полю "NAME_R"'
+    Top = 648
+    Width = 75
+    Caption = 'Найти ...'
+    OnClick = Btn_FindClick
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 11
+  end
+  object Edit_FindText: TEdit
+    Left = 24
+    Height = 23
+    Top = 648
+    Width = 224
+    OnChange = Edit_FindTextChange
+    TabOrder = 12
+  end
+  object Btn_FindNext: TButton
+    Left = 384
+    Height = 25
+    Top = 648
+    Width = 112
+    Caption = 'Искать дальше'
+    OnClick = Btn_FindNextClick
+    TabOrder = 13
   end
   object Menu_StanProject: TMainMenu
     Left = 416

@@ -242,8 +242,8 @@ begin
   StringGrid_ColumnsName.FixedRows  := 1;
   StringGrid_ColumnsName.Cells[1,0] := 'N_STR';  {TopologDbf.FieldDefs [0].Name;}
   StringGrid_ColumnsName.Cells[2,0] := 'N_EL';   {TopologDbf.FieldDefs [1].Name;}
-  StringGrid_ColumnsName.Cells[3,0] := 'NAME_R'; {TopologDbf.FieldDefs [2].Name;}
-  StringGrid_ColumnsName.Cells[4,0] := 'NAME_E'; {TopologDbf.FieldDefs [3].Name;}
+  StringGrid_ColumnsName.Cells[3,0] := 'NAME_E'; {TopologDbf.FieldDefs [2].Name;}
+  StringGrid_ColumnsName.Cells[4,0] := 'NAME_R'; {TopologDbf.FieldDefs [3].Name;}
   StringGrid_ColumnsName.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
   StringGrid_ColumnsName.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
   StringGrid_ColumnsName.ColWidths[0] := 50;
@@ -385,8 +385,8 @@ begin
   StringGrid_ColumnsName.FixedRows  := 1;
   StringGrid_ColumnsName.Cells[1,0] := 'N_STR';  {TopologDbf.FieldDefs [0].Name;}
   StringGrid_ColumnsName.Cells[2,0] := 'N_EL';   {TopologDbf.FieldDefs [1].Name;}
-  StringGrid_ColumnsName.Cells[3,0] := 'NAME_R'; {TopologDbf.FieldDefs [2].Name;}
-  StringGrid_ColumnsName.Cells[4,0] := 'NAME_E'; {TopologDbf.FieldDefs [3].Name;}
+  StringGrid_ColumnsName.Cells[3,0] := 'NAME_E'; {TopologDbf.FieldDefs [2].Name;}
+  StringGrid_ColumnsName.Cells[4,0] := 'NAME_R'; {TopologDbf.FieldDefs [3].Name;}
   StringGrid_ColumnsName.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
   StringGrid_ColumnsName.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
   StringGrid_ColumnsName.ColWidths[0] := 50;

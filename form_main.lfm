@@ -1,13 +1,13 @@
 object STANMain: TSTANMain
-  Left = 1085
+  Left = 174
   Height = 710
-  Top = 18
-  Width = 801
+  Top = 89
+  Width = 1034
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'
   ClientHeight = 690
-  ClientWidth = 801
+  ClientWidth = 1034
   Menu = Menu_StanProject
   OnClose = FormClose
   OnCreate = FormCreate
@@ -17,7 +17,7 @@ object STANMain: TSTANMain
     Left = 0
     Height = 603
     Top = 24
-    Width = 681
+    Width = 896
     FixedCols = 0
     FixedRows = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
@@ -27,7 +27,7 @@ object STANMain: TSTANMain
     OnDblClick = StringGrid_TopologDataDblClick
   end
   object btn_NewSubline: TButton
-    Left = 688
+    Left = 914
     Height = 25
     Hint = 'Вставка нового элемента в строку зависимостей.'#13#10'Включается после выделеного элемента,'#13#10'с таким же значением "N_STR".'#13#10'Значения "N_EL" нового элемента увеличивается на "1"'#13#10'относительно выделенного элемента.'#13#10'(Значения "N_EL" остальных элементов строки пересчитываются).'
     Top = 8
@@ -39,7 +39,7 @@ object STANMain: TSTANMain
     TabOrder = 1
   end
   object btn_DeleteSubline: TButton
-    Left = 688
+    Left = 914
     Height = 25
     Hint = 'Удаление элемента строки зависимости.'#13#10'Номера элементов внутри строки, в которой удаляется элемент'#13#10'пересчитываются автоматически.'#13#10'Нумерация строк не затрагивается.'
     Top = 56
@@ -51,7 +51,7 @@ object STANMain: TSTANMain
     TabOrder = 2
   end
   object btn_EditLine: TButton
-    Left = 688
+    Left = 914
     Height = 25
     Top = 104
     Width = 104
@@ -60,7 +60,7 @@ object STANMain: TSTANMain
     TabOrder = 3
   end
   object btn_LineUp: TBitBtn
-    Left = 712
+    Left = 938
     Height = 62
     Hint = 'Строку зависимости вверх'
     Top = 320
@@ -364,7 +364,7 @@ object STANMain: TSTANMain
     TabOrder = 4
   end
   object btn_LineDown: TBitBtn
-    Left = 712
+    Left = 938
     Height = 62
     Hint = 'Строку зависимости вниз'
     Top = 400
@@ -668,7 +668,7 @@ object STANMain: TSTANMain
     TabOrder = 5
   end
   object btn_SublineUp: TBitBtn
-    Left = 712
+    Left = 938
     Height = 62
     Hint = 'Элемент строки вверх'
     Top = 160
@@ -972,7 +972,7 @@ object STANMain: TSTANMain
     TabOrder = 6
   end
   object btn_SublineDown: TBitBtn
-    Left = 712
+    Left = 938
     Height = 62
     Hint = 'Элемент строки вниз'
     Top = 240
@@ -1276,7 +1276,7 @@ object STANMain: TSTANMain
     TabOrder = 7
   end
   object btn_NewLine: TButton
-    Left = 688
+    Left = 914
     Height = 25
     Hint = 'Добавить новую строку зависимостей.'#13#10'(Вставка в конец списка с новым номером, '#13#10'увеличенным на "1" относительно поля "N_STR"'#13#10'последнего элемента).'
     Top = 500
@@ -1291,7 +1291,7 @@ object STANMain: TSTANMain
     Left = 0
     Height = 25
     Top = 0
-    Width = 681
+    Width = 896
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
     RowCount = 2
@@ -1299,7 +1299,7 @@ object STANMain: TSTANMain
     TabOrder = 9
   end
   object btn_CheckDepend: TButton
-    Left = 688
+    Left = 914
     Height = 25
     Top = 544
     Width = 104

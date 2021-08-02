@@ -1,21 +1,22 @@
 object Form_TopologyElement: TForm_TopologyElement
-  Left = 2246
-  Height = 333
-  Top = 500
+  Left = 2854
+  Height = 369
+  Top = 250
   Width = 570
   Caption = 'Элемент топологии'
-  ClientHeight = 333
+  ClientHeight = 369
   ClientWidth = 570
+  OnActivate = FormActivate
   OnCreate = FormCreate
   Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
   object GroupBox_ElementProperties: TGroupBox
     Left = 8
-    Height = 264
+    Height = 304
     Top = 8
     Width = 552
     Caption = 'Элемент'
-    ClientHeight = 244
+    ClientHeight = 284
     ClientWidth = 548
     TabOrder = 0
     OnClick = GroupBox_ElementPropertiesClick
@@ -32,7 +33,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Left = 376
       Height = 23
       Top = 8
-      Width = 140
+      Width = 139
       Enabled = False
       TabOrder = 1
       Text = 'Edit_Line'
@@ -41,7 +42,7 @@ object Form_TopologyElement: TForm_TopologyElement
       Left = 376
       Height = 23
       Top = 48
-      Width = 141
+      Width = 139
       Enabled = False
       TabOrder = 2
       Text = 'Edit_LineElement'
@@ -49,23 +50,25 @@ object Form_TopologyElement: TForm_TopologyElement
     object Edit_Name: TEdit
       Left = 376
       Height = 23
-      Top = 88
-      Width = 141
+      Top = 126
+      Width = 156
+      OnChange = Edit_NameChange
+      OnUTF8KeyPress = Edit_NameUTF8KeyPress
       TabOrder = 3
       Text = 'Edit_Name'
     end
     object Edit_ID: TEdit
       Left = 376
       Height = 23
-      Top = 128
-      Width = 139
+      Top = 166
+      Width = 156
       TabOrder = 4
       Text = 'Edit_ID'
     end
     object Edit_UVK: TEdit
       Left = 376
       Height = 23
-      Top = 208
+      Top = 246
       Width = 139
       Enabled = False
       TabOrder = 5
@@ -81,9 +84,9 @@ object Form_TopologyElement: TForm_TopologyElement
       TabOrder = 6
     end
     object UpDown_UVK: TUpDown
-      Left = 512
+      Left = 515
       Height = 22
-      Top = 208
+      Top = 247
       Width = 17
       Min = 0
       Position = 0
@@ -92,8 +95,8 @@ object Form_TopologyElement: TForm_TopologyElement
     object combobox_ID_Link: TComboBox
       Left = 376
       Height = 23
-      Top = 168
-      Width = 155
+      Top = 206
+      Width = 156
       ItemHeight = 15
       TabOrder = 8
       Text = 'combobox_ID_Link'
@@ -117,7 +120,7 @@ object Form_TopologyElement: TForm_TopologyElement
     object Label_Name: TLabel
       Left = 11
       Height = 15
-      Top = 90
+      Top = 128
       Width = 171
       Caption = '(TOPOLOG.NAME_R {DBF}) Имя'
       ParentColor = False
@@ -125,7 +128,7 @@ object Form_TopologyElement: TForm_TopologyElement
     object Label_ID: TLabel
       Left = 11
       Height = 15
-      Top = 130
+      Top = 168
       Width = 239
       Caption = '(TOPOLOG.NAME_E {DBF}) ID (English name)'
       ParentColor = False
@@ -133,7 +136,7 @@ object Form_TopologyElement: TForm_TopologyElement
     object Label_ID_Link: TLabel
       Left = 11
       Height = 15
-      Top = 171
+      Top = 209
       Width = 173
       Caption = 'TOPOLOG.SL {DBF}) ID перехода'
       ParentColor = False
@@ -141,16 +144,66 @@ object Form_TopologyElement: TForm_TopologyElement
     object Label_UVK: TLabel
       Left = 11
       Height = 15
-      Top = 210
+      Top = 248
       Width = 220
       Caption = 'TOPOLOG.STOYKA {DBF}) Номер стойки'
       ParentColor = False
+    end
+    object Label_TypeElement: TLabel
+      Left = 83
+      Height = 15
+      Top = 89
+      Width = 25
+      Caption = 'ТИП'
+      ParentColor = False
+    end
+    object CB_TypeElement: TComboBox
+      Left = 120
+      Height = 23
+      Top = 86
+      Width = 338
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        '00.<NONE>'
+        '01.Стрелка ([СТ...][ST...])'
+        '02.Секция ([CП...][SP...])'
+        '03.Путь ([П...][P...])'
+        '04.Блок перехода ([БП...][V...])'
+        '05.Дополнительная зависимость ([Дз...][DZ...])'
+        '06.Маневровый сигнал ([М...][M...])'
+        '07.Поездной ЧЁТНЫЙ сигнал ([Ч...][CH...])'
+        '08.Поездной НЕЧЕТНЫЙ сигнал ([Н...][N...])'
+        '09.Участок пути ([УП...][UP...])'
+        '10.Смена направления ([СН...][SN...])'
+      )
+      OnChange = CB_TypeElementChange
+      TabOrder = 9
+      Text = '00.<NONE>'
+    end
+    object Edit_NameR: TEdit
+      Left = 345
+      Height = 23
+      Top = 126
+      Width = 32
+      Alignment = taRightJustify
+      TabOrder = 10
+      Text = 'Edit_NameR'
+    end
+    object Edit_NameE: TEdit
+      Left = 345
+      Height = 23
+      Top = 166
+      Width = 32
+      Alignment = taRightJustify
+      TabOrder = 11
+      Text = 'Edit_NameE'
     end
   end
   object btn_Save: TButton
     Left = 304
     Height = 25
-    Top = 288
+    Top = 325
     Width = 75
     Caption = 'Сохранить'
     TabOrder = 1
@@ -158,15 +211,15 @@ object Form_TopologyElement: TForm_TopologyElement
   object btn_Cancel: TButton
     Left = 416
     Height = 25
-    Top = 288
+    Top = 325
     Width = 75
     Caption = 'Отмена'
     TabOrder = 2
   end
   object cb_EditEnable: TCheckBox
-    Left = 14
+    Left = 16
     Height = 19
-    Top = 288
+    Top = 325
     Width = 100
     Caption = 'Редактировать'
     OnChange = cb_EditEnableChange
@@ -175,7 +228,7 @@ object Form_TopologyElement: TForm_TopologyElement
   object btn_Properties: TButton
     Left = 192
     Height = 25
-    Top = 288
+    Top = 325
     Width = 75
     Caption = 'Свойства ...'
     TabOrder = 4

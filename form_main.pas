@@ -235,50 +235,17 @@ begin
      Else;
   {-endif1}
 
-  {оформляем заголовки таблицы}
-  StringGrid_ColumnsName.ColCount   := 7;
-  StringGrid_ColumnsName.RowCount   := 1;
-  StringGrid_ColumnsName.FixedCols  := 1;
-  StringGrid_ColumnsName.FixedRows  := 1;
-  StringGrid_ColumnsName.Cells[1,0] := 'N_STR';  {TopologDbf.FieldDefs [0].Name;}
-  StringGrid_ColumnsName.Cells[2,0] := 'N_EL';   {TopologDbf.FieldDefs [1].Name;}
-  StringGrid_ColumnsName.Cells[3,0] := 'NAME_E'; {TopologDbf.FieldDefs [2].Name;}
-  StringGrid_ColumnsName.Cells[4,0] := 'NAME_R'; {TopologDbf.FieldDefs [3].Name;}
-  StringGrid_ColumnsName.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
-  StringGrid_ColumnsName.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
-  StringGrid_ColumnsName.ColWidths[0] := 50;
-  StringGrid_ColumnsName.ColWidths[1] :=
-    Trunc ((StringGrid_ColumnsName.Width - StringGrid_ColumnsName.ColWidths[0] - 20) / 6);
-  { 20 == width vertical scrollbar}
-  StringGrid_ColumnsName.ColWidths[2] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[3] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[4] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[5] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[6] := StringGrid_ColumnsName.ColWidths[1];
+  {Конфигурация}
+  KO.TUMS.Count := 0;
+  KO.MSTU.Count := 0;
 
-  StringGrid_TopologData.ColCount   := 7;
-  StringGrid_TopologData.RowCount   := 0;
-  StringGrid_TopologData.FixedCols  := 1;
-  StringGrid_TopologData.FixedRows  := 0;
-  StringGrid_TopologData.ColWidths[0] := 50;
-  StringGrid_TopologData.ColWidths[1] :=
-    Trunc ((StringGrid_TopologData.Width - StringGrid_TopologData.ColWidths[0] - 20) / 6);
-  { 20 == width vertical scrollbar}
-  StringGrid_TopologData.ColWidths[2] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[3] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[4] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[5] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[6] := StringGrid_TopologData.ColWidths[1];
-
+  //{оформляем заголовки таблицы}
   (Menu_StanProject.Items [0]).Items [2].Enabled := TRUE;   { "Сохранить" }
   (Menu_StanProject.Items [0]).Items [3].Enabled := TRUE;   { "Сохранить как ..." }
   (Menu_StanProject.Items [0]).Items [4].Enabled := TRUE;   { "Закрыть" }
   (Menu_StanProject.Items [0]).Items [0].Enabled := FALSE;  { "Создать ..." }
   (Menu_StanProject.Items [0]).Items [1].Enabled := FALSE;  { "Открыть" }
   (Menu_StanProject.Items [0]).Items [5].Enabled := TRUE;   { "Выход" }
-  {Конфигурация}
-  KO.TUMS.Count := 0;
-  KO.MSTU.Count := 0;
   (Menu_StanProject.Items [1]).Items [0].Enabled := TRUE;
   (Menu_StanProject.Items [1]).Items [1].Enabled := TRUE;
   (Menu_StanProject.Items [1]).Enabled := TRUE;
@@ -304,6 +271,10 @@ begin
   Btn_FindNext.Enabled := FALSE;
   Edit_FindText.Enabled := TRUE;
   Edit_FindText.Text := '';
+
+  TopologyList.Clear; {удаляем старые данные}
+  ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
+  Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 
   { есть dbf топология?}
   if (FileExists (CFG.StanPrjDirName+'TOPOLOG.DBF') = FALSE) { файл топологии dbf отсутствует }
@@ -337,8 +308,6 @@ begin
     if (TopologDbf.FieldDefs [4].Name <> 'SL')     then raise (TopologE);
     if (TopologDbf.FieldDefs [5].Name <> 'STOYKA') then raise (TopologE);
 
-    TopologyList.Clear; {удаляем старые данные}
-
     TopologDbf.First;
     while (TopologDbf.EOF <> TRUE) do {читаем данные}
     begin
@@ -354,8 +323,6 @@ begin
     TopologE.Destroy;
     TopologDbf.Destroy;
 
-    ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
-
     Application.MessageBox ('В меню "Конфигурация" определите количество стоек и количество объектов!',
                             'Загрузка', MB_OK);
 
@@ -364,7 +331,6 @@ begin
     Application.MessageBox ('Неправильный формат topolog.dbf', 'f.ck.p', MB_OK);
   end;
 
-  Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
 
 { === Перезагружаем табличку-grid отображения топологии ====================== }
@@ -390,28 +356,24 @@ begin
   StringGrid_ColumnsName.Cells[5,0] := 'SL';     {TopologDbf.FieldDefs [4].Name;}
   StringGrid_ColumnsName.Cells[6,0] := 'STOYKA'; {TopologDbf.FieldDefs [5].Name;}
   StringGrid_ColumnsName.ColWidths[0] := 50;
-  StringGrid_ColumnsName.ColWidths[1] :=
-    Trunc ((StringGrid_ColumnsName.Width - StringGrid_ColumnsName.ColWidths[0] - 20) / 6);
-  { 20 == width vertical scrollbar}
-  StringGrid_ColumnsName.ColWidths[2] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[3] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[4] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[5] := StringGrid_ColumnsName.ColWidths[1];
-  StringGrid_ColumnsName.ColWidths[6] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_ColumnsName.ColWidths[1] := 70;
+  StringGrid_ColumnsName.ColWidths[2] := 70;
+  StringGrid_ColumnsName.ColWidths[3] := 150;
+  StringGrid_ColumnsName.ColWidths[4] := 150;
+  StringGrid_ColumnsName.ColWidths[5] := 150;
+  StringGrid_ColumnsName.ColWidths[6] := 70;
 
   StringGrid_TopologData.ColCount   := 7;
   StringGrid_TopologData.RowCount   := 0;
   StringGrid_TopologData.FixedCols  := 1;
   StringGrid_TopologData.FixedRows  := 0;
-  StringGrid_TopologData.ColWidths[0] := 50;
-  StringGrid_TopologData.ColWidths[1] :=
-    Trunc ((StringGrid_TopologData.Width - StringGrid_TopologData.ColWidths[0] - 20) / 6);
-  { 20 == width vertical scrollbar}
-  StringGrid_TopologData.ColWidths[2] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[3] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[4] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[5] := StringGrid_TopologData.ColWidths[1];
-  StringGrid_TopologData.ColWidths[6] := StringGrid_TopologData.ColWidths[1];
+  StringGrid_TopologData.ColWidths[0] := StringGrid_ColumnsName.ColWidths[0];
+  StringGrid_TopologData.ColWidths[1] := StringGrid_ColumnsName.ColWidths[1];
+  StringGrid_TopologData.ColWidths[2] := StringGrid_ColumnsName.ColWidths[2];
+  StringGrid_TopologData.ColWidths[3] := StringGrid_ColumnsName.ColWidths[3];
+  StringGrid_TopologData.ColWidths[4] := StringGrid_ColumnsName.ColWidths[4];
+  StringGrid_TopologData.ColWidths[5] := StringGrid_ColumnsName.ColWidths[5];
+  StringGrid_TopologData.ColWidths[6] := StringGrid_ColumnsName.ColWidths[6];
 
   {формируем и форматируем таблицу}
   StringGrid_TopologData.RowCount := list_source.Count;

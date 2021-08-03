@@ -54,6 +54,7 @@ TKolObj = record
 end;
 
 procedure TopologyElementReset (var tplg : TTopology);
+procedure TopologyElementReset (ptplg : PTTopology);
 
 implementation
 
@@ -65,6 +66,16 @@ begin
    tplg.Name    := '';
    tplg.Link    := '';
    tplg.UVK     := 0;
+end;
+
+procedure TopologyElementReset (ptplg : PTTopology);
+begin
+   ptplg^.Line    := 0;
+   ptplg^.SubLine := 0;
+   ptplg^.Id      := '';
+   ptplg^.Name    := '';
+   ptplg^.Link    := '';
+   ptplg^.UVK     := 0;
 end;
 
 end.

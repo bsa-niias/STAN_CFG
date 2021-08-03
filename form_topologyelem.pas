@@ -38,6 +38,8 @@ type
     UpDown_Line: TUpDown;
     UpDown_LineElement: TUpDown;
     UpDown_UVK: TUpDown;
+    procedure btn_CancelClick(Sender: TObject);
+    procedure btn_SaveClick(Sender: TObject);
     procedure cb_EditEnableChange(Sender: TObject);
     procedure CB_TypeElementChange(Sender: TObject);
     procedure Edit_NameChange(Sender: TObject);
@@ -51,7 +53,8 @@ type
     tplg_change : TTopology;  { Измененное состояние }
 
   public
-    procedure TopologFieldsInit (var tplg_elem : TTopology);
+    procedure Init (var tplg_elem : TTopology; var vlist : TStringList);
+    procedure Get  (var tplg_elem : TTopology);
   end;
 
 var
@@ -95,6 +98,8 @@ begin
   GroupBox_ElementProperties.Enabled := TRUE;
   btn_Cancel.Enabled                 := TRUE;
   cb_EditEnable.Enabled              := TRUE;
+
+  cb_EditEnable.Checked := FALSE;
 end;
 
 
@@ -154,6 +159,84 @@ begin
           btn_Cancel.Enabled                 := TRUE;
           cb_EditEnable.Enabled              := TRUE;
        end;
+end;
+
+procedure TForm_TopologyElement.btn_CancelClick(Sender: TObject);
+begin
+  tplg_change := tplg_init;
+end;
+
+procedure TForm_TopologyElement.btn_SaveClick(Sender: TObject);
+{===}
+Var
+  str_temp : String;
+  _pos     : SizeInt;
+{===}
+begin
+   tplg_change := tplg_init;
+
+   tplg_change.Line := StrToInt (Edit_Line.Text);
+   tplg_change.SubLine := StrToInt (Edit_LineElement.Text);
+
+   tplg_change.Name := '';
+   tplg_change.Id   := '';
+   Case (CB_TypeElement.ItemIndex) Of
+        1: Begin
+              tplg_change.Name := 'СТ';
+              tplg_change.Id   := 'ST';
+           End;
+        2: Begin
+              tplg_change.Name := 'СП';
+              tplg_change.Id   := 'SP';
+           End;
+        3: Begin
+              tplg_change.Name := 'П';
+              tplg_change.Id   := 'P';
+           End;
+        4: Begin
+              tplg_change.Name := 'БП';
+              tplg_change.Id   := 'V';
+           End;
+        5: Begin
+              tplg_change.Name := 'Дз';
+              tplg_change.Id   := 'DZ';
+           End;
+        6: Begin
+              tplg_change.Name := 'М';
+              tplg_change.Id   := 'M';
+           End;
+        7: Begin
+              tplg_change.Name := 'Н';
+              tplg_change.Id   := 'N';
+           End;
+        8: Begin
+              tplg_change.Name := 'Ч';
+              tplg_change.Id   := 'CH';
+           End;
+        9: Begin
+              tplg_change.Name := 'УП';
+              tplg_change.Id   := 'UP';
+           End;
+       10: Begin
+              tplg_change.Name := 'СН';
+              tplg_change.Id   := 'SN';
+           End;
+   End;
+   tplg_change.Name := tplg_change.Name + Edit_Name.Text;
+   tplg_change.Id   := tplg_change.Id   + Edit_ID.Text;
+
+   tplg_change.Link := '';
+   If (Combobox_ID_Link.ItemIndex <> 0)
+      Then Begin
+           str_temp := Combobox_ID_Link.Items [Combobox_ID_Link.ItemIndex];
+           _pos := Pos ('[', str_temp);
+           if (_pos <> 0)
+              Then tplg_change.Link := Copy (str_temp, 1, _pos-1)
+              Else tplg_change.Link := '?';
+      End
+      Else;
+
+   tplg_change.UVK := StrToInt (Edit_UVK.Text);
 end;
 
 procedure TForm_TopologyElement.CB_TypeElementChange(Sender: TObject);
@@ -331,21 +414,27 @@ Begin
    Else; // UTF8Key := #0;
 end;
 
-procedure TForm_TopologyElement.TopologFieldsInit (var tplg_elem : TTopology);
+procedure TForm_TopologyElement.Init (var tplg_elem : TTopology; var vlist : TStringList);
 {===}
 var
-  str_tmp : string;
+  slist_count  : Integer;
+  slist_index  : Integer;
+  st           : String;
+  str_tmp      : string;
 {===}
 begin
+   {Редактируемый элемент-начальное значение}
    tplg_init   := tplg_elem;
-   tplg_change := tplg_elem;
+
+   {Редактируемый элемент-это измененное состояние}
+   tplg_change := tplg_init;
 
    str (tplg_change.Line, str_tmp);
    Edit_Line.Text := str_tmp;
    str (tplg_change.SubLine, str_tmp);
    Edit_LineElement.Text := str_tmp;
 
-   If ((tplg_change.Id [1] = 'S') And ((tplg_change.Id [2] = 'T')))
+   If ((Length (tplg_change.Id) >= 2) And (tplg_change.Id [1] = 'S') And (tplg_change.Id [2] = 'T'))
       Then Begin
            CB_TypeElement.ItemIndex := 1;
            Edit_NameR.Text := 'СТ';
@@ -356,7 +445,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If ((tplg_change.Id [1] = 'S') And ((tplg_change.Id [2] = 'P')))
+   If ((Length (tplg_change.Id) >= 2) And (tplg_change.Id [1] = 'S') And (tplg_change.Id [2] = 'P'))
       Then Begin
            CB_TypeElement.ItemIndex := 2;
            Edit_NameR.Text := 'СП';
@@ -367,7 +456,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If (tplg_change.Id [1] = 'P')
+   If ((Length (tplg_change.Id) >= 1) And (tplg_change.Id [1] = 'P'))
       Then Begin
            CB_TypeElement.ItemIndex := 3;
            Edit_NameR.Text := 'П';
@@ -378,7 +467,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If (tplg_change.Id [1] = 'V')
+   If ((Length (tplg_change.Id) >= 1) And (tplg_change.Id [1] = 'V'))
       Then Begin
            CB_TypeElement.ItemIndex := 4;
            Edit_NameR.Text := 'БП';
@@ -389,7 +478,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If ((tplg_change.Id [1] = 'D') And ((tplg_change.Id [2] = 'Z')))
+   If ((Length (tplg_change.Id) >= 2) And (tplg_change.Id [1] = 'D') And (tplg_change.Id [2] = 'Z'))
       Then Begin
            CB_TypeElement.ItemIndex := 5;
            Edit_NameR.Text := 'Дз';
@@ -400,7 +489,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If (tplg_change.Id [1] = 'M')
+   If ((Length (tplg_change.Id) >= 1) And (tplg_change.Id [1] = 'M'))
       Then Begin
            CB_TypeElement.ItemIndex := 6;
            Edit_NameR.Text := 'М';
@@ -411,7 +500,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If (tplg_change.Id [1] = 'N')
+   If ((Length (tplg_change.Id) >= 1) And (tplg_change.Id [1] = 'N'))
       Then Begin
            CB_TypeElement.ItemIndex := 7;
            Edit_NameR.Text := 'Н';
@@ -422,7 +511,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If ((tplg_change.Id [1] = 'C') And ((tplg_change.Id [2] = 'H')))
+   If ((Length (tplg_change.Id) >= 2) And (tplg_change.Id [1] = 'C') And (tplg_change.Id [2] = 'H'))
       Then Begin
            CB_TypeElement.ItemIndex := 8;
            Edit_NameR.Text := 'Ч';
@@ -433,7 +522,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If ((tplg_change.Id [1] = 'U') And ((tplg_change.Id [2] = 'P')))
+   If ((Length (tplg_change.Id) >= 2) And (tplg_change.Id [1] = 'U') And (tplg_change.Id [2] = 'P'))
       Then Begin
            CB_TypeElement.ItemIndex := 9;
            Edit_NameR.Text := 'УП';
@@ -444,7 +533,7 @@ begin
            //Edit_Id.Text := tplg_change.Id;
       End
    Else
-   If ((tplg_change.Id [1] = 'S') And ((tplg_change.Id [2] = 'N')))
+   If ((Length (tplg_change.Id) >= 2) And (tplg_change.Id [1] = 'S') And (tplg_change.Id [2] = 'N'))
       Then Begin
            CB_TypeElement.ItemIndex := 10;
            Edit_NameR.Text := 'СН';
@@ -462,14 +551,43 @@ begin
         //Edit_Id.Text := tplg_change.Id;
    End;
 
-   //Edit_ID.Text := tplg_init.Id;
-   //str_tmp:=ConvertEncoding (tplg_init.Name, 'cp866', 'utf8');
-   //Edit_Name.Text := tplg_init.Name;
-   combobox_ID_Link.Text := tplg_init.Link;
+   {Формируем список переходов из существующих}
+   combobox_ID_Link.Clear;
+   slist_count := vlist.Count;
+   For slist_index := 1 To slist_count Do
+   Begin
+       st := vlist[slist_index-1];
+       combobox_ID_Link.Items.Add (st);
+   End;
+   combobox_ID_Link.Enabled   := TRUE;
+   combobox_ID_Link.ItemIndex := 0;
+
+   {Ищем и устанавливаем существующий переход, если он есть}
+   slist_count := combobox_ID_Link.Items.Count;
+   For slist_index := 1 To slist_count Do
+   Begin
+       st := combobox_ID_Link.Items [slist_index-1];
+       If (Pos (tplg_init.Link, st) <> 0)
+          Then Begin
+               combobox_ID_Link.ItemIndex := slist_index-1;
+               Break;
+          End
+          Else;
+       {-endif1}
+   End;
+
+   {Edit_ID сам меняется по имени Edit_Name}
+   {Edit_ID.Text := tplg_init.Id;}
+   {str_tmp:=ConvertEncoding (tplg_init.Name, 'cp866', 'utf8');}
 
    str (tplg_init.UVK, str_tmp);
    Edit_UVK.Text := str_tmp;
 end;
+
+procedure TForm_TopologyElement.Get (var tplg_elem : TTopology);
+Begin
+   tplg_elem := tplg_change;
+End;
 
 end.
 

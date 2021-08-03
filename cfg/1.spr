@@ -1,0 +1,10 @@
+{
+     "Type" : "JSON",
+     "TimeStamp" : "03.08.2021 20:45:14",
+     "STAN" : {
+          "Name" : "1",
+          "Directory" : "D:\\_02_DEV\\TUMS\\STAN_CFG\\cfg\\",
+          "KolObj" : "1_kolobj.js",
+          "Topology" : "1_topolog.js"
+     }
+}

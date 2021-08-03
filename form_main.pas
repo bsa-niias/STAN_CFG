@@ -23,6 +23,7 @@ type
 TTopologyList = class (TList)
 public
     procedure SortAdd (var TopologyElement : TTopology);
+    procedure SortForce;
     procedure TopologyListReorderAfterAdd;
     procedure TopologyListReorderAfterRemove;
 end;
@@ -916,26 +917,85 @@ end;
 
 {=== Редактирование элемента строки топологии =================================}
 procedure TSTANMain.StringGrid_TopologDataDblClick(Sender: TObject);
+{===}
 var
-  topolog_row   : Integer;     { выбранная строка в списке }
-  TopologyLine  : TTopology;   { значения }
-  ptplg         : ^TTopology;
+  //topolog_row : Integer;     { выбранная строка в списке }
+  TL_1        : TTopology;   { значения }
+  TL_2        : TTopology = (Line:0;SubLine:0;Name:'';Id:'';Link:'';UVK:0);   { значения }
+  ptplg       : PTTopology;
+
+  tplist_count    : Integer;
+  tplist_index    : Integer;
+  tpl_element     : PTTopology;
+  st              : String;
+  VList           : TStringList;
+
+  topolog_row : LongInt;
+  TopRow_old  : LongInt;
+{===}
 begin
   topolog_row := StringGrid_TopologData.Row;
   if (topolog_row < 0)
      then exit
      else;
-  {-endif0}
+  {-endif1}
 
-  ptplg := TopologyList.Items[topolog_row]; { нумерация с  }
+  VList := TStringList.Create;
 
-  TopologyLine := ptplg^;
-  Form_TopologyElement.TopologFieldsInit (TopologyLine);
-  Form_TopologyElement.ShowModal;
+  VList.add ('<NONE>');
+  tplist_count := TopologyList.Count;
+  For tplist_index := 1 To tplist_count Do
+  Begin
+     tpl_element := TopologyList.Items[tplist_index-1];
+     If (tpl_element = NIL)
+        Then Continue
+        Else;
+        {-endif2}
+     If ((Length (tpl_element^.Id) >= 1) And  (tpl_element^.Id [1] = 'V') Or
+        ((Length (tpl_element^.Id) >= 2) And ((tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T'))))
+        Then Begin
+             st := tpl_element^.Id + '[' +
+                   IntToStr (tpl_element^.Line) + '.' +
+                   IntToStr (tpl_element^.SubLine) + ']';
+             VList.add (st);
+        End
+        Else;
+        {-endif2}
+  End;
 
-  DependIsChange := TRUE;
+  {текущее значение}
+  ptplg := TopologyList.Items[topolog_row]; { нумерация с '0' }
+  TL_1 := ptplg^;
+
+  TopologyElementReset (TL_2);
+  Form_TopologyElement.Init (TL_1, VList);
+  If (Form_TopologyElement.ShowModal = mrOk)
+     Then Begin
+          Form_TopologyElement.Get (TL_2); {Новое значение}
+
+          topolog_row := StringGrid_TopologData.Row;
+          TopRow_old  := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
+
+          ptplg := TopologyList.Items[topolog_row]; { нумерация с '0' }
+          ptplg^.Line    := TL_2.Line;
+          ptplg^.SubLine := TL_2.SubLine;
+          ptplg^.Name    := TL_2.Name;
+          ptplg^.Id      := TL_2.Id;
+          ptplg^.Link    := TL_2.Link;
+          ptplg^.UVK     := TL_2.UVK;
+
+          ConfigureVisualGrid_Topology (TopologyList);   { перерисовываем таблицу }
+          StringGrid_TopologData.Row    := topolog_row;  { выделяем новую строку }
+          StringGrid_TopologData.TopRow := TopRow_old;   { восстанавливаем первую отображаемую строку }
+     End
+     Else;
+     {-endif1}
+
+  VList.Clear;
+  VList.Destroy;
+
+  DependIsChange := FALSE;
 end;
-
 (*===
 function TSTANMain.Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;
 var
@@ -951,7 +1011,6 @@ begin
   Result := strlen (Dest);
 end;
 ===*)
-
 {=== Завершение работы ========================================================}
 procedure TSTANMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
@@ -963,29 +1022,22 @@ end;
 procedure TSTANMain.btn_NewSublineClick(Sender: TObject);
 var
   topolog_row     : Integer;     { выбранная строка в списке }
-  TopologyElement : TTopology;   { значения }
-  pTplg_new       : ^TTopology;
+  //TopologyElement : TTopology;   { значения }
+  pTplg_new       : PTTopology;
   TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
 {---}
 begin
   { память для нового элемента в список }
   new (pTplg_new);
-  if (pTplg_new = NIL)
-     then begin
-          Application.MessageBox ('Нехватка памяти. TSTANMain.btn_NewSublineClick (...)', 'f.ck.p', MB_OK);
-          exit;
-     end
-     else;
-  {-endif0}
+  //if (pTplg_new = NIL)
+  //   then begin
+  //        Application.MessageBox ('Нехватка памяти. TSTANMain.btn_NewSublineClick (...)', 'f.ck.p', MB_OK);
+  //        exit;
+  //   end
+  //   else;
+  //{-endif0}
 
-  //TopologyElementReset (TopologyElement);
-  TopologyElement.Line    := 0;
-  TopologyElement.SubLine := 0;
-  TopologyElement.Id      := '';
-  TopologyElement.Name    := '';
-  TopologyElement.Link    := '';
-  TopologyElement.UVK     := 0;
-  pTplg_new^ :=  TopologyElement; { копия значения }
+  TopologyElementReset (pTplg_new);
 
   TopRow_old := StringGrid_TopologData.TopRow;    { первая отображаемая строка - сохраняем }
 
@@ -997,7 +1049,7 @@ begin
      End;
   {-endif0}
 
-  TopologyList.Insert(topolog_row, pTplg_new);  { добавляем новоый элемент строки топологии }
+  TopologyList.Insert(topolog_row, pTplg_new);  { добавляем новый элемент строки топологии }
   TopologyList.TopologyListReorderAfterAdd;     { корректировка индексов }
   ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
 
@@ -1888,6 +1940,9 @@ begin
   {-endif0}
 end;
 
+procedure TTopologyList.SortForce;
+begin
+end;
 { ---------------------------------------------------------------------------- }
 procedure TSTANMain.SaveProject (var _cfg : TTopologyCFG);
 var

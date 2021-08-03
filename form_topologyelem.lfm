@@ -1,7 +1,7 @@
 object Form_TopologyElement: TForm_TopologyElement
-  Left = 2854
+  Left = 3132
   Height = 369
-  Top = 250
+  Top = 573
   Width = 570
   Caption = 'Элемент топологии'
   ClientHeight = 369
@@ -25,6 +25,8 @@ object Form_TopologyElement: TForm_TopologyElement
       Height = 23
       Top = 8
       Width = 17
+      Associate = Edit_Line
+      Max = 256
       Min = 0
       Position = 0
       TabOrder = 0
@@ -79,15 +81,19 @@ object Form_TopologyElement: TForm_TopologyElement
       Height = 23
       Top = 48
       Width = 17
+      Associate = Edit_LineElement
+      Max = 256
       Min = 0
       Position = 0
       TabOrder = 6
     end
     object UpDown_UVK: TUpDown
       Left = 515
-      Height = 22
-      Top = 247
+      Height = 23
+      Top = 246
       Width = 17
+      Associate = Edit_UVK
+      Max = 256
       Min = 0
       Position = 0
       TabOrder = 7
@@ -172,8 +178,8 @@ object Form_TopologyElement: TForm_TopologyElement
         '04.Блок перехода ([БП...][V...])'
         '05.Дополнительная зависимость ([Дз...][DZ...])'
         '06.Маневровый сигнал ([М...][M...])'
-        '07.Поездной ЧЁТНЫЙ сигнал ([Ч...][CH...])'
-        '08.Поездной НЕЧЕТНЫЙ сигнал ([Н...][N...])'
+        '07.Поездной НЕЧЕТНЫЙ сигнал ([Н...][N...])'
+        '08.Поездной ЧЁТНЫЙ сигнал ([Ч...][CH...])'
         '09.Участок пути ([УП...][UP...])'
         '10.Смена направления ([СН...][SN...])'
       )
@@ -206,6 +212,8 @@ object Form_TopologyElement: TForm_TopologyElement
     Top = 325
     Width = 75
     Caption = 'Сохранить'
+    ModalResult = 1
+    OnClick = btn_SaveClick
     TabOrder = 1
   end
   object btn_Cancel: TButton
@@ -214,6 +222,8 @@ object Form_TopologyElement: TForm_TopologyElement
     Top = 325
     Width = 75
     Caption = 'Отмена'
+    ModalResult = 2
+    OnClick = btn_CancelClick
     TabOrder = 2
   end
   object cb_EditEnable: TCheckBox

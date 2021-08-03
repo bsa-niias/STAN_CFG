@@ -1,12 +1,12 @@
 object STANMain: TSTANMain
-  Left = 758
-  Height = 710
-  Top = 181
+  Left = 1590
+  Height = 723
+  Top = 281
   Width = 863
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'
-  ClientHeight = 690
+  ClientHeight = 703
   ClientWidth = 863
   Menu = Menu_StanProject
   OnClose = FormClose
@@ -62,7 +62,7 @@ object STANMain: TSTANMain
   object btn_LineUp: TBitBtn
     Left = 769
     Height = 62
-    Hint = 'Строку зависимости вверх'
+    Hint = 'Строку зависимости со всеми элементами вверх'
     Top = 320
     Width = 60
     Glyph.Data = {
@@ -366,7 +366,7 @@ object STANMain: TSTANMain
   object btn_LineDown: TBitBtn
     Left = 769
     Height = 62
-    Hint = 'Строку зависимости вниз'
+    Hint = 'Строку зависимости со всеми элементами вниз'
     Top = 400
     Width = 60
     Glyph.Data = {
@@ -670,7 +670,7 @@ object STANMain: TSTANMain
   object btn_SublineUp: TBitBtn
     Left = 769
     Height = 62
-    Hint = 'Элемент строки вверх'
+    Hint = 'Элемент строки зависимостей вверх'
     Top = 160
     Width = 60
     Glyph.Data = {
@@ -974,7 +974,7 @@ object STANMain: TSTANMain
   object btn_SublineDown: TBitBtn
     Left = 769
     Height = 62
-    Hint = 'Элемент строки вниз'
+    Hint = 'Элемент строки зависимостей вниз'
     Top = 240
     Width = 60
     Glyph.Data = {

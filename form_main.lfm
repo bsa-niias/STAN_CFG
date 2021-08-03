@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 1590
+  Left = 938
   Height = 723
-  Top = 281
+  Top = 215
   Width = 863
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle

@@ -131,6 +131,8 @@ TSTANMain = class(TForm)
     procedure ConfigureVisualGrid_Topology (var list_source : TTopologyList);
 end;
 
+function CompareTopologyElements (TE1, TE2 : Pointer) : Integer;
+
 { ---------------------------------------------------------------------------- }
 var
   STANMain: TSTANMain;
@@ -916,6 +918,35 @@ begin
 end;
 
 {=== Редактирование элемента строки топологии =================================}
+function CompareTopologyElements (TE1, TE2 : Pointer) : Integer;
+Begin
+   Result := 0;
+
+   If ((PTTopology(TE1)^.Line*1024+PTTopology(TE1)^.SubLine) =
+       (PTTopology(TE2)^.Line*1024+PTTopology(TE2)^.SubLine))
+      Then Begin
+           If (PTTopology(TE1)^.Id = PTTopology(TE2)^.Id)
+              Then Result := 0
+           Else
+           If (PTTopology(TE1)^.Id > PTTopology(TE2)^.Id)
+              Then Result := 1
+           Else
+           If (PTTopology(TE1)^.Id < PTTopology(TE2)^.Id)
+           Then Result := -1
+           Else;
+      End
+      Else
+   If ((PTTopology(TE1)^.Line*1024+PTTopology(TE1)^.SubLine) >
+       (PTTopology(TE2)^.Line*1024+PTTopology(TE2)^.SubLine))
+      Then Result := 1
+      Else
+   If ((PTTopology(TE1)^.Line*1024+PTTopology(TE1)^.SubLine) <
+       (PTTopology(TE2)^.Line*1024+PTTopology(TE2)^.SubLine))
+      Then Result := -1
+      Else; { Assert (FALSE,'CompareTopologyElements');}
+End;
+
+{------------------------------------------------------------------------------}
 procedure TSTANMain.StringGrid_TopologDataDblClick(Sender: TObject);
 {===}
 var
@@ -940,9 +971,9 @@ begin
      else;
   {-endif1}
 
+  {Формирование списка переходов}
   VList := TStringList.Create;
-
-  VList.add ('<NONE>');
+  VList.add ('<NONE>');     {0 - нет перехода}
   tplist_count := TopologyList.Count;
   For tplist_index := 1 To tplist_count Do
   Begin
@@ -963,17 +994,19 @@ begin
         {-endif2}
   End;
 
-  {текущее значение}
+  {текущее значение - выбранный элемент}
   ptplg := TopologyList.Items[topolog_row]; { нумерация с '0' }
   TL_1 := ptplg^;
 
-  TopologyElementReset (TL_2);
+  {Меняем параметры}
   Form_TopologyElement.Init (TL_1, VList);
   If (Form_TopologyElement.ShowModal = mrOk)
      Then Begin
-          Form_TopologyElement.Get (TL_2); {Новое значение}
+          {Получаем новые значения}
+          TopologyElementReset (TL_2);
+          Form_TopologyElement.Get (TL_2);
 
-          topolog_row := StringGrid_TopologData.Row;
+          topolog_row := StringGrid_TopologData.Row;     { выбранная строка }
           TopRow_old  := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
 
           ptplg := TopologyList.Items[topolog_row]; { нумерация с '0' }
@@ -983,10 +1016,24 @@ begin
           ptplg^.Id      := TL_2.Id;
           ptplg^.Link    := TL_2.Link;
           ptplg^.UVK     := TL_2.UVK;
+          TopologyList.Sort(@CompareTopologyElements);
 
           ConfigureVisualGrid_Topology (TopologyList);   { перерисовываем таблицу }
-          StringGrid_TopologData.Row    := topolog_row;  { выделяем новую строку }
-          StringGrid_TopologData.TopRow := TopRow_old;   { восстанавливаем первую отображаемую строку }
+          tplist_count := TopologyList.Count;
+          For tplist_index := 1 To tplist_count Do
+          Begin
+             tpl_element := TopologyList.Items[tplist_index-1];
+             If ((tpl_element^.Line = TL_2.Line) And
+                 (tpl_element^.SubLine = TL_2.SubLine) And
+                 (tpl_element^.Name = TL_2.Name))
+                Then Begin
+                     StringGrid_TopologData.Row    := tplist_index-1;  { выделяем новую строку }
+                     { восстанавливаем первую отображаемую строку }
+                     StringGrid_TopologData.TopRow := StringGrid_TopologData.Row - (topolog_row-TopRow_old);
+                End
+                Else;
+          End;
+
      End
      Else;
      {-endif1}
@@ -1252,7 +1299,7 @@ end;
 procedure TSTANMain.btn_SublineUpClick(Sender: TObject);
 var
   topolog_row     : Integer;     { выбранная строка в списке }
-  pTplg           : ^TTopology;
+  pTplg1          : ^TTopology;
   pTplg2          : ^TTopology;
   TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
   ExchangeVal     : Integer;
@@ -1265,10 +1312,10 @@ begin
      else;
   {-endif0}
 
-  pTplg  := TopologyList.Items [topolog_row];
+  pTplg1 := TopologyList.Items [topolog_row];
   pTplg2 := TopologyList.Items [topolog_row-1];
 
-  if (pTplg^.SubLine = 1)
+  if (pTplg1^.SubLine = 1)
      then begin
           Application.MessageBox ('Первый элемент строки зависимостей. При необходимости отредактируйте нумерацию вручную!',
                                   'ВНИМАНИЕ !', MB_OK);
@@ -1277,7 +1324,7 @@ begin
      else;
   {-endif0}
 
-  if (pTplg^.Line <> pTplg2^.Line)
+  if (pTplg1^.Line <> pTplg2^.Line)
      then begin
           Application.MessageBox ('Разные строки зависимостей. При необходимости отредактируйте нумерацию вручную!',
                                   'ВНИМАНИЕ !', MB_OK);
@@ -1289,18 +1336,26 @@ begin
   TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
 
   { замена нумерации подстрок }
-  ExchangeVal     := pTplg2^.Subline;
-  pTplg2^.Subline := pTplg^.Subline;
-  pTplg^.Subline  := ExchangeVal;
-
-  { смена указателей }
-  TopologyList.Items [topolog_row-1] := pTplg;
-  TopologyList.Items [topolog_row]   := pTplg2;
-
-  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
-
-  StringGrid_TopologData.Row := topolog_row-1;    { выделяем новую строку }
-  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+  If (pTplg1^.SubLine = pTplg2^.SubLine+1)
+     Then Begin
+          ExchangeVal     := pTplg2^.Subline;
+          pTplg2^.Subline := pTplg1^.Subline;
+          pTplg1^.Subline := ExchangeVal;
+          { смена указателей }
+          TopologyList.Items [topolog_row-1] := pTplg1;
+          TopologyList.Items [topolog_row]   := pTplg2;
+          { отображение }
+          ConfigureVisualGrid_Topology (TopologyList);     { перерисовываем таблицу }
+          StringGrid_TopologData.Row    := topolog_row-1;  { выделяем новую строку }
+          StringGrid_TopologData.TopRow := TopRow_old;     { восстанавливаем первую отображаемую строку }
+     End
+     Else Begin
+          pTplg1^.Subline := pTplg1^.Subline-1;
+          { отображение }
+          ConfigureVisualGrid_Topology (TopologyList);   { перерисовываем таблицу }
+          StringGrid_TopologData.Row    := topolog_row;  { выделяем новую строку }
+          StringGrid_TopologData.TopRow := TopRow_old;   { восстанавливаем первую отображаемую строку }
+     End;
 
   DependIsChange := TRUE;
 end;
@@ -1309,7 +1364,7 @@ end;
 procedure TSTANMain.btn_SublineDownClick(Sender: TObject);
 var
   topolog_row     : Integer;     { выбранная строка в списке }
-  pTplg           : ^TTopology;
+  pTplg1          : ^TTopology;
   pTplg2          : ^TTopology;
   TopRow_old      : Integer;     { сохранение позиции отображения строк stringgrid }
   ExchangeVal     : Integer;
@@ -1327,10 +1382,10 @@ begin
      else;
   {-endif0}
 
-  pTplg  := TopologyList.Items [topolog_row];
+  pTplg1 := TopologyList.Items [topolog_row];
   pTplg2 := TopologyList.Items [topolog_row+1];
 
-  if (pTplg^.Line <> pTplg2^.Line)
+  if (pTplg1^.Line <> pTplg2^.Line)
      then begin
           Application.MessageBox ('Разные строки зависимостей. Отредактируйте нумерацию вручную!',
                                   'ВНИМАНИЕ !', MB_OK);
@@ -1342,18 +1397,26 @@ begin
   TopRow_old := StringGrid_TopologData.TopRow;  { первая отображаемая строка - сохраняем }
 
   { замена нумерации подстрок }
-  ExchangeVal     := pTplg2^.Subline;
-  pTplg2^.Subline := pTplg^.Subline;
-  pTplg^.Subline  := ExchangeVal;
-
-  { смена указателей }
-  TopologyList.Items [topolog_row]   := pTplg2;
-  TopologyList.Items [topolog_row+1] := pTplg;
-
-  ConfigureVisualGrid_Topology (TopologyList);  { перерисовываем таблицу }
-
-  StringGrid_TopologData.Row := topolog_row+1;    { выделяем новую строку }
-  StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
+    If (pTplg1^.SubLine+1 = pTplg2^.SubLine)
+     Then Begin
+          ExchangeVal     := pTplg2^.Subline;
+          pTplg2^.Subline := pTplg1^.Subline;
+          pTplg1^.Subline := ExchangeVal;
+          { смена указателей }
+          TopologyList.Items [topolog_row]   := pTplg2;
+          TopologyList.Items [topolog_row+1] := pTplg1;
+          { отображение }
+          ConfigureVisualGrid_Topology (TopologyList);     { перерисовываем таблицу }
+          StringGrid_TopologData.Row    := topolog_row+1;  { выделяем новую строку }
+          StringGrid_TopologData.TopRow := TopRow_old;     { восстанавливаем первую отображаемую строку }
+     End
+     Else Begin
+          pTplg1^.Subline := pTplg1^.Subline+1;
+          { отображение }
+          ConfigureVisualGrid_Topology (TopologyList);   { перерисовываем таблицу }
+          StringGrid_TopologData.Row    := topolog_row;  { выделяем новую строку }
+          StringGrid_TopologData.TopRow := TopRow_old;   { восстанавливаем первую отображаемую строку }
+     End;
 
   DependIsChange := TRUE;
 end;

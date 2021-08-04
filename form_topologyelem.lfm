@@ -1,7 +1,7 @@
 object Form_TopologyElement: TForm_TopologyElement
-  Left = 3218
+  Left = 3131
   Height = 369
-  Top = 717
+  Top = 550
   Width = 570
   Caption = 'Элемент топологии'
   ClientHeight = 369

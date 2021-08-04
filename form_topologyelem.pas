@@ -100,6 +100,9 @@ end;
 procedure TForm_TopologyElement.FormActivate(Sender: TObject);
 begin
   FormCreate (Sender);
+  {Before call *.init}
+  {Перед активацией формы нужно вызвать *.Init}
+  CB_TypeElementChange (Sender);
 end;
 
 procedure TForm_TopologyElement.cb_EditEnableChange(Sender: TObject);
@@ -153,6 +156,7 @@ begin
           btn_Cancel.Enabled                 := TRUE;
           cb_EditEnable.Enabled              := TRUE;
        end;
+  CB_TypeElementChange (Sender);
 end;
 
 procedure TForm_TopologyElement.btn_CancelClick(Sender: TObject);

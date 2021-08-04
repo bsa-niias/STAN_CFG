@@ -831,7 +831,7 @@ begin
   SaveProject (CFG);
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 
-  DependIsChange := FALSE;
+  DependIsChange := FALSE; {save_as - изменений пока нет в зависимостях}
 End;
 
 procedure TSTANMain.Menu_Project_ExitClick(Sender: TObject);
@@ -839,17 +839,27 @@ var
   {dialog's}
   MsgRes  : TModalResult; {message_execute_result}
 begin
-  {MsgRes := MessageDlg ('Работа с проектом ... ',
-                        'Закрыть проект '+CFG.StanPrjName+' ('+
-                        CFG.StanPrjFFName+') и выйти из программы ?',
-                        mtConfirmation, [mbYes, mbNo], '0');}
-
   MsgRes := MessageDlg ('Работа с проектом ... ', 'Выйти из программы ?',
                         mtConfirmation, [mbYes, mbNo], '0');
 
   if (MsgRes <> mrYes)
      then exit
      else;
+  {-endif1}
+
+  If (DependIsChange = TRUE)
+     Then Begin
+          MsgRes := MessageDlg ('Работа с проектом ... ',
+                                'Проект '+CFG.StanPrjName+' ('+
+                                CFG.StanPrjFFName+') изменен. Сохранить?',
+                                mtConfirmation, [mbYes, mbNo], '0');
+
+          if (MsgRes = mrYes)
+             then Menu_Project_SaveClick (Sender)
+             else;
+          {-endif2}
+     End
+     Else;
   {-endif1}
 
   Application.Terminate;
@@ -920,7 +930,7 @@ end;
 procedure TSTANMain.Menu_Project_SaveClick(Sender: TObject);
 begin
   SaveProject (CFG);
-  DependIsChange := FALSE;
+  DependIsChange := FALSE; {save - изменений пока нет в зависимостях}
 end;
 
 {=== Редактирование элемента строки топологии =================================}
@@ -1047,7 +1057,8 @@ begin
   VList.Clear;
   VList.Destroy;
 
-  DependIsChange := FALSE;
+  DependIsChange := TRUE; {edit_subline}
+
 end;
 (*===
 function TSTANMain.Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;
@@ -1110,7 +1121,7 @@ begin
 
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE; {new_subline}
 end;
 
 procedure TSTANMain.Edit_FindTextChange(Sender: TObject);
@@ -1158,7 +1169,7 @@ begin
 
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE;  {delete_line}
 end;
 
 {=== Перемещение строки зависимостей "наверх" =================================}
@@ -1232,7 +1243,7 @@ begin
   StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE; {line_up}
 end;
 
 {=== Перемещение строки зависимостей "вниз" ===================================}
@@ -1298,7 +1309,7 @@ begin
   StringGrid_TopologData.Row := topolog_row;    { выделяем новую строку }
   StringGrid_TopologData.TopRow := TopRow_old;  { восстанавливаем первую отображаемую строку }
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE; {line_down}
 end;
 
 {=== Перемещение подстроки зависимостей "вверх" ================================}
@@ -1363,7 +1374,7 @@ begin
           StringGrid_TopologData.TopRow := TopRow_old;   { восстанавливаем первую отображаемую строку }
      End;
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE; {subline_up}
 end;
 
 {=== Перемещение подстроки зависимостей "вверх" ===============================}
@@ -1424,7 +1435,7 @@ begin
           StringGrid_TopologData.TopRow := TopRow_old;   { восстанавливаем первую отображаемую строку }
      End;
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE; {subline_down}
 end;
 
 {=== Создание новой строки. Всегда добавляется в конец ========================}
@@ -1473,7 +1484,7 @@ begin
 
   StringGrid_TopologData.Row := TopologyList.Count;    { выделяем новую строку }
 
-  DependIsChange := TRUE;
+  DependIsChange := TRUE; {new_line}
 end;
 
 procedure TSTANMain.Btn_FindClick(Sender: TObject);
@@ -1519,6 +1530,9 @@ var
   tplist_index2 : Integer;
   tpl_element2  : PTTopology;
   isLinkFind    : Boolean;
+  tplist_count3 : Integer;
+  tplist_index3 : Integer;
+  tpl_element3  : PTTopology;
   st            : String;
   StrErrors     : TStringList;
   WStr          : UnicodeString;
@@ -1744,58 +1758,85 @@ begin
        End;
 
        {==7. Перекрестные ссылки}
-       isLinkFind := FALSE;
        {смотрим только стрелки и блоки переходы}
-       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T') And
-           (Trim (tpl_element^.Link) <> ''))
-          Then
-       Else
-       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'V') And
-           (Trim (tpl_element^.Link) <> ''))
-          Then
-       Else Continue; {не наш "клиент"}
-       {-endif2}
-       {это "ST..." или "V..."}
-       tplist_count2 := TopologyList.Count;
-       For tplist_index2 := 1 To tplist_count2 Do
+       If ( ((Length (tpl_element^.Id) >= 2) And
+             (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T') And
+             (Trim (tpl_element^.Link) <> ''))
+            Or
+            ((Length (tpl_element^.Id) >= 1) And
+             (tpl_element^.Id [1] = 'V') And
+             (Trim (tpl_element^.Link) <> '')) )
+          Then Begin
+               {это "ST..." или "V..."}
+               isLinkFind := FALSE;
+               tplist_count2 := TopologyList.Count;
+               For tplist_index2 := 1 To tplist_count2 Do
+               Begin
+                  tpl_element2 := TopologyList.Items[tplist_index2-1];
+                  {пропускаем пустые элементы}
+                  If (tpl_element2 = NIL)
+                     Then Continue
+                     Else;
+                  {-endif3}
+                  {пропускаем сами себя}
+                  If (tplist_index2 = tplist_index)
+                     Then Continue
+                     Else;
+                  {-endif3}
+                  If (tpl_element^.Link = tpl_element2^.Id) { найден переход }
+                     Then Begin
+                          If (tpl_element2^.Link = tpl_element^.Id) { найден обратный переход }
+                             Then {все найдено! - выходим}
+                             Else Begin
+                                  StrErrors.Add ('TopologyList['+
+                                                 IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                                 '].Link(SL) неправильная ссылка перехода ['+
+                                                 IntToStr (tpl_element2^.Line)+'.'+IntToStr (tpl_element2^.SubLine)+'] : ' +
+                                                 tpl_element^.Link);
+                             End;
+                          {-endif4}
+                          isLinkFind := TRUE;
+                          Break;
+                     End
+                     Else; {продолжаем поиск}
+                  {-endif3}
+               End; {end for 'tplist_index2' }
+               If (isLinkFind = FALSE) {дошли до конца}
+                  Then Begin
+                       StrErrors.Add ('TopologyList['+
+                                      IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                      '].Link(SL) не найдена ссылка перехода '''+ tpl_element^.Link+'''');
+                  End
+                  Else;
+               {-endif3}
+          End
+       Else; {не наш "клиент"}
+
+       {==7. Дублированные номера строк зависимостей}
+       tplist_count3 := TopologyList.Count;
+       For tplist_index3 := 1 To tplist_count3 Do
        Begin
-          tpl_element2 := TopologyList.Items[tplist_index2-1];
+          tpl_element3 := TopologyList.Items[tplist_index3-1];
           {пропускаем пустые элементы}
-          If (tpl_element2 = NIL)
+          If (tpl_element3 = NIL)
              Then Continue
              Else;
           {-endif2}
           {пропускаем сами себя}
-          If (tplist_index2 = tplist_index)
+          If (tplist_index3 = tplist_index)
              Then Continue
              Else;
           {-endif2}
-          If (tpl_element^.Link = tpl_element2^.Id) { найден переход }
+          If ((tpl_element3^.Line = tpl_element^.Line) And (tpl_element3^.SubLine = tpl_element^.SubLine))
              Then Begin
-                  If (tpl_element2^.Link = tpl_element^.Id) { найден обратный переход }
-                     Then {все найдено! - выходим}
-                     Else Begin
-                          StrErrors.Add ('TopologyList['+
-                                         IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
-                                         '].Link(SL) неправильная ссылка перехода ['+
-                                         IntToStr (tpl_element2^.Line)+'.'+IntToStr (tpl_element2^.SubLine)+'] : ' +
-                                         tpl_element^.Link);
-                     End;
-                  {-endif3}
-                  isLinkFind := TRUE;
-                  Break;
+                  StrErrors.Add ('TopologyList['+
+                                 IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                 '].N_STR(N_EL) дубликат строки ['+
+                                 IntToStr (tplist_index)+'|'+IntToStr (tplist_index3)+']');
              End
-             Else; {продолжаем поиск}
-          {-endif2}
-       End; {end for 'tplist_index2' }
-       If (isLinkFind = FALSE)
-          Then Begin
-               StrErrors.Add ('TopologyList['+
-                              IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
-                              '].Link(SL) не найдена ссылка перехода '''+ tpl_element^.Link+'''');
-          End
-          Else;
-       {-endif2}
+             Else;
+       End;
+
     End; {end for 'tplist_index' }
 
     Form_StrError.ListBox_Errors.Items.AddStrings(StrErrors, TRUE);
@@ -1902,7 +1943,7 @@ begin
   End;
   TopologyList := TTopologyList.Create;
 
-  DependIsChange := FALSE;
+  DependIsChange := FALSE; {create - изменений пока нет в зависимостях}
 
   Caption :=  'БД Сервер->STAN (aka FoxPro) <NONE>';
 end;
@@ -2024,6 +2065,21 @@ begin
      else;
   {-endif1}
 
+  If (DependIsChange = TRUE)
+     Then Begin
+          MsgRes := MessageDlg ('Работа с проектом ... ',
+                                'Проект '+CFG.StanPrjName+' ('+
+                                CFG.StanPrjFFName+') изменен. Сохранить?',
+                                mtConfirmation, [mbYes, mbNo], '0');
+
+          if (MsgRes = mrYes)
+             then Menu_Project_SaveClick (Sender)
+             else;
+          {-endif2}
+     End
+     Else;
+  {-endif1}
+
   {"сбрасываем" все имена}
   CFG.StanPrjName         := ''; {имя проекта}
   CFG.StanPrjFFName       := '';
@@ -2090,6 +2146,8 @@ begin
   StringGrid_TopologData.Clear;
 
   Caption :=  'БД Сервер->STAN (aka FoxPro) <NONE>';
+
+  DependIsChange := FALSE; {close_and_save_project}
 end;
 
 { ------------------------------------------------------------------------------- }
@@ -2106,7 +2164,7 @@ Var
   tli       : longword;         { индекс цикла списка }
   key_new   : longword;         { 'ключ' сортировки новой записи }
   key_s     : longword;         { 'ключ' сортировки записи из TList }
-  etplg     : ERangeError;      { исключение при ошибке в DBF }
+  //etplg     : ERangeError;      { исключение при ошибке в DBF }
   isIns     : Boolean;
 
 Begin
@@ -2144,9 +2202,12 @@ Begin
                { new 'topolog.line' is equal }
                if (key_new = key_s)
                   then begin { it's bag! }
-                       etplg := ERangeError.Create ('TTopologyList');
-                       etplg.Message := 'Topology line dublicate in dbf.';
-                       raise (etplg);
+                       //etplg := ERangeError.Create ('TTopologyList');
+                       //etplg.Message := 'Topology line dublicate in dbf.';
+                       //raise (etplg);
+                       self.Insert (tli, pTplg_new);
+                       isIns := TRUE;
+                       break;
                    end
                else;
                {-endif2}

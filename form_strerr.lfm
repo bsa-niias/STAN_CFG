@@ -1,7 +1,7 @@
 object Form_StrError: TForm_StrError
-  Left = 1555
+  Left = 1178
   Height = 452
-  Top = 393
+  Top = 504
   Width = 555
   BorderStyle = bsDialog
   Caption = 'Результат проверки структуры зависимостей'

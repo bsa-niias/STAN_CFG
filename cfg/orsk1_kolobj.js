@@ -1,6 +1,6 @@
 {
    "Type" : "JSON",
-   "TimeStamp" : "04.08.2021 22:02:52",
+   "TimeStamp" : "04.08.2021 22:08:43",
    "KolObj" : {
       "TUMS" : {
          "Count" : "7",

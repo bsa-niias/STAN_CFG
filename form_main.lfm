@@ -1,12 +1,12 @@
 object STANMain: TSTANMain
-  Left = 2420
-  Height = 723
-  Top = 281
+  Left = 2929
+  Height = 731
+  Top = 103
   Width = 863
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'БД Сервер->STAN (aka FoxPro)'
-  ClientHeight = 703
+  ClientHeight = 711
   ClientWidth = 863
   Menu = Menu_StanProject
   OnClose = FormClose
@@ -1308,7 +1308,7 @@ object STANMain: TSTANMain
   object btn_CheckDepend: TButton
     Left = 745
     Height = 25
-    Top = 651
+    Top = 648
     Width = 104
     Caption = 'Проверка'
     OnClick = btn_CheckDependClick
@@ -1351,6 +1351,18 @@ object STANMain: TSTANMain
     Position = 1
     Step = 1
     TabOrder = 14
+  end
+  object StatusBar_Ver: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 688
+    Width = 863
+    Panels = <    
+      item
+        Text = 'Версия (Дата) : 0.0.1 (2021.08.04_22:08:00)'
+        Width = 50
+      end>
+    SimplePanel = False
   end
   object Menu_StanProject: TMainMenu
     Left = 416

@@ -89,6 +89,7 @@ TSTANMain = class(TForm)
     Dialog_OpenProject: TOpenDialog;
     Dialog_SaveAsProject: TSaveDialog;
     ProgressBar_CheckDepend: TProgressBar;
+    StatusBar_Ver: TStatusBar;
     StringGrid_TopologData: TStringGrid;
     StringGrid_ColumnsName: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}

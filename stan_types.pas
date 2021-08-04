@@ -5,7 +5,8 @@ unit stan_types;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils,
+  LCLType, Lazutf8;
 
 type
 { ------------------------------------------------------------------------------- }
@@ -55,6 +56,7 @@ end;
 
 procedure TopologyElementReset (var tplg : TTopology);
 procedure TopologyElementReset (ptplg : PTTopology);
+function _2En (_ch : TUTF8Char) : TUTF8Char;
 
 implementation
 
@@ -77,6 +79,47 @@ begin
    ptplg^.Link    := '';
    ptplg^.UVK     := 0;
 end;
+
+function _2En (_ch : TUTF8Char) : TUTF8Char;
+Begin
+   If (_ch = 'А') Then Result := 'A' Else
+   If (_ch = 'Б') Then Result := 'B' Else
+   If (_ch = 'В') Then Result := 'V' Else
+   If (_ch = 'Г') Then Result := 'G' Else
+   If (_ch = 'Д') Then Result := 'D' Else
+   If (_ch = 'Е') Then Result := 'E' Else
+   If (_ch = 'Ё') Then Result := ''  Else
+   If (_ch = 'Ж') Then Result := 'J' Else
+   If (_ch = 'З') Then Result := 'Z' Else
+   If (_ch = 'з') Then Result := 'Z' Else
+   If (_ch = 'И') Then Result := 'I' Else
+   If (_ch = 'Й') Then Result := ''  Else
+   If (_ch = 'К') Then Result := 'K' Else
+   If (_ch = 'Л') Then Result := 'L' Else
+   If (_ch = 'М') Then Result := 'M' Else
+   If (_ch = 'Н') Then Result := 'N' Else
+   If (_ch = 'О') Then Result := 'O' Else
+   If (_ch = 'о') Then Result := 'O' Else
+   If (_ch = 'П') Then Result := 'P' Else
+   If (_ch = 'Р') Then Result := 'R' Else
+   If (_ch = 'С') Then Result := 'S' Else
+   If (_ch = 'Т') Then Result := 'T' Else
+   If (_ch = 'У') Then Result := 'U' Else
+   If (_ch = 'Ф') Then Result := 'F' Else
+   If (_ch = 'Х') Then Result := 'H' Else
+   If (_ch = 'Ц') Then Result := ''  Else
+   If (_ch = 'Ч') Then Result := 'C' Else
+   If (_ch = 'ч') Then Result := 'C' Else
+   If (_ch = 'Ш') Then Result := ''  Else
+   If (_ch = 'Щ') Then Result := ''  Else
+   If (_ch = 'Ь') Then Result := ''  Else
+   If (_ch = 'Ы') Then Result := ''  Else
+   If (_ch = 'Ъ') Then Result := ''  Else
+   If (_ch = 'Э') Then Result := ''  Else
+   If (_ch = 'Ю') Then Result := ''  Else
+   If (_ch = 'Я') Then Result := ''
+   Else Result := _ch;
+End;
 
 end.
 

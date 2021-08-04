@@ -6,11 +6,11 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, LCLType, StdCtrls,
-  Menus, Grids, UITypes, DBGrids, DBCtrls, Buttons, form_do_lamps_2color, dbf,
-  DB, LConvEncoding,
-  fpjson, jsonparser, jsonscanner,
-  stan_types, form_topologyelem,
-  form_uvk, form_linpzu;
+  Menus, Grids, UITypes, DBGrids, DBCtrls, Buttons, ComCtrls,
+  form_do_lamps_2color, dbf, DB, LConvEncoding, fpjson, jsonparser, jsonscanner,
+  stan_types, form_topologyelem, form_uvk, form_linpzu,
+  Lazutf8,
+  form_strerr;
 
 { ------------------------------------------------------------------------------- }
 const
@@ -88,9 +88,11 @@ TSTANMain = class(TForm)
     Dialog_CreateNewProject: TOpenDialog;
     Dialog_OpenProject: TOpenDialog;
     Dialog_SaveAsProject: TSaveDialog;
+    ProgressBar_CheckDepend: TProgressBar;
     StringGrid_TopologData: TStringGrid;
     StringGrid_ColumnsName: TStringGrid;
     {function Dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: Boolean): Integer;}
+    procedure btn_CheckDependClick(Sender: TObject);
     procedure Btn_FindClick(Sender: TObject);
     procedure Btn_FindNextClick(Sender: TObject);
     procedure btn_NewLineClick(Sender: TObject);
@@ -265,7 +267,6 @@ begin
   btn_SublineUp.Visible          := TRUE;
   btn_SublineDown.Visible        := TRUE;
   btn_NewLine.Visible            := TRUE;
-  btn_CheckDepend.Visible        := TRUE;
   {Поиск}
   Btn_Find.Visible := TRUE;
   Btn_FindNext.Visible := TRUE;
@@ -274,6 +275,9 @@ begin
   Btn_FindNext.Enabled := FALSE;
   Edit_FindText.Enabled := TRUE;
   Edit_FindText.Text := '';
+  {Проверка}
+  btn_CheckDepend.Visible := TRUE;
+  ProgressBar_CheckDepend.Visible := TRUE;
 
   TopologyList.Clear; {удаляем старые данные}
   ConfigureVisualGrid_Topology (TopologyList);  { заполняем сетку }
@@ -737,7 +741,6 @@ begin
   btn_SublineUp.Visible  := TRUE;
   btn_SublineDown.Visible:= TRUE;
   btn_NewLine.Visible:= TRUE;
-  btn_CheckDepend.Visible:= TRUE;
   {Поиск}
   Btn_Find.Visible := TRUE;
   Btn_FindNext.Visible := TRUE;
@@ -746,6 +749,9 @@ begin
   Btn_FindNext.Enabled := FALSE;
   Edit_FindText.Enabled := TRUE;
   Edit_FindText.Text := '';
+  {Проверка}
+  btn_CheckDepend.Visible:= TRUE;
+  ProgressBar_CheckDepend.Visible := TRUE;
 
   Caption := 'БД Сервер->STAN (aka FoxPro) <'+CFG.StanPrjName+':'+CFG.StanPrjFFName+'>';
 end;
@@ -1016,7 +1022,7 @@ begin
           ptplg^.Id      := TL_2.Id;
           ptplg^.Link    := TL_2.Link;
           ptplg^.UVK     := TL_2.UVK;
-          TopologyList.Sort(@CompareTopologyElements);
+          TopologyList.Sort(@CompareTopologyElements); { Сортировка }
 
           ConfigureVisualGrid_Topology (TopologyList);   { перерисовываем таблицу }
           tplist_count := TopologyList.Count;
@@ -1500,6 +1506,307 @@ begin
   Application.MessageBox ('Нет такого (проверьте регистр)!', 'Поиск', MB_OK);
 End;
 
+procedure TSTANMain.btn_CheckDependClick(Sender: TObject);
+{===}
+var
+  tplist_count  : Integer;
+  tplist_index  : Integer;
+  tpl_element   : PTTopology;
+  tplist_count1 : Integer;
+  tplist_index1 : Integer;
+  tpl_element1  : PTTopology;
+  tplist_count2 : Integer;
+  tplist_index2 : Integer;
+  tpl_element2  : PTTopology;
+  isLinkFind    : Boolean;
+  st            : String;
+  StrErrors     : TStringList;
+  WStr          : UnicodeString;
+{===}
+begin
+    ProgressBar_CheckDepend.Min  := 1;
+    ProgressBar_CheckDepend.Max  := TopologyList.Count;
+    ProgressBar_CheckDepend.Step := 1;
+    ProgressBar_CheckDepend.Position := 1;
+    StrErrors := TStringList.Create;
+
+    tplist_count := TopologyList.Count;
+    For tplist_index := SearchIndex+1 To tplist_count Do
+    Begin
+       tpl_element := TopologyList.Items[tplist_index-1];
+       If (tpl_element = NIL)
+          Then Continue
+          Else;
+       st := tpl_element^.Id;
+       btn_CheckDepend.Caption := st;
+       ProgressBar_CheckDepend.Position := tplist_index;
+       {==1. Проверка пустых имен}
+       If (Trim (tpl_element^.Name) = '')
+          Then StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                              '.'+IntToStr (tpl_element^.SubLine)+
+                              '].Name(NAME_R) пустой')
+          Else;
+       If (Trim (tpl_element^.Id) = '')
+          Then StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                              '.'+IntToStr (tpl_element^.SubLine)+
+                              '].Id(NAME_E) пустой')
+          Else;
+       {==2. Проверка типа}
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'P'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'P'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'V'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'D') And (tpl_element^.Id [2] = 'Z'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'M'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'N'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'C') And (tpl_element^.Id [2] = 'H'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'U') And (tpl_element^.Id [2] = 'P'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'N'))
+          Then
+       Else Begin
+            StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                           '.'+IntToStr (tpl_element^.SubLine)+
+                           '].Id(NAME_E) некорректный тип ('''+tpl_element^.Id+''')');
+       End;
+       {==3. Проверка типа#2}
+       WStr := UTF8ToUTF16 (tpl_element^.Name);
+       {==}
+       If ((Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'С') And (UTF8Encode (WStr [2]) = 'Т'))
+           Then
+       Else
+       If ((Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'С') And (UTF8Encode (WStr [2]) = 'П'))
+           Then
+       Else
+       If ((Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'П'))
+           Then
+       Else
+       If ((Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'Б') And (UTF8Encode (WStr [2]) = 'П'))
+           Then
+       Else
+       If ((Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'Д') And (UTF8Encode (WStr [2]) = 'з'))
+          Then
+       Else
+       If ((Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'М'))
+          Then
+       Else
+       If ((Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'Н'))
+          Then
+       Else
+       If ((Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'Ч'))
+          Then
+       Else
+       If ((Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'У') And (UTF8Encode (WStr [2]) = 'П'))
+          Then
+       Else
+       If ((Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'С') And (UTF8Encode (WStr [2]) = 'Н'))
+          Then
+       Else Begin
+            StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                           '.'+IntToStr (tpl_element^.SubLine)+
+                           '].Name(NAME_R) некорректное имя ('''+tpl_element^.nAME+''')');
+       End;
+       {==3. Типы у имен - проверка пунктуации, если корректировали вручную}
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T') And
+           (Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'С') And (UTF8Encode (WStr [2]) = 'Т'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'P') And
+           (Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'С') And (UTF8Encode (WStr [2]) = 'П'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'P') And
+           (Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'П'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'V') And
+           (Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'Б') And (UTF8Encode (WStr [2]) = 'П'))
+           Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'D') And (tpl_element^.Id [2] = 'Z') And
+           (Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'Д') And (UTF8Encode (WStr [2]) = 'з'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'M') And
+           (Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'М'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'N') And
+           (Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'Н'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'C') And (tpl_element^.Id [2] = 'H') And
+           (Length (WStr) >= 1) And (UTF8Encode (WStr [1]) = 'Ч'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'U') And (tpl_element^.Id [2] = 'P') And
+           (Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'У') And (UTF8Encode (WStr [2]) = 'П'))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'N') And
+           (Length (WStr) >= 2) And (UTF8Encode (WStr [1]) = 'С') And (UTF8Encode (WStr [2]) = 'Н'))
+          Then
+       Else Begin
+            StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                           '.'+IntToStr (tpl_element^.SubLine)+
+                           '].Id(NAME_E)/Name(NAME_R) несоответствие имен/типов ('''+
+                            tpl_element^.Id+'/'+tpl_element^.Name+''')');
+       End;
+       {==4. En|Ru Имена}
+       {
+       WStrLen :=  Length (WStr);
+       StrUTF8 := '';
+       For str_index := 1 To WStrLen Do
+       Begin
+           WChar := WStr [str_index];
+           StrUTF8 := StrUTF8 + _2En (UTF8Encode (WChar));
+       End;
+       If (StrUTF8 <> tpl_element^.Id)
+          Then Begin
+               StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                                            '.'+IntToStr (tpl_element^.SubLine)+
+                                            '].Id(NAME_E)/Name(NAME_R) несоответствие имен ('''+
+                                            tpl_element^.Id+'/'+tpl_element^.Name+''')');
+          End
+          Else;
+       }
+
+       {==5. Пустые переходы}
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T') And
+           (Trim (tpl_element^.Link) = ''))
+          Then StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                              '.'+IntToStr (tpl_element^.SubLine)+
+                              '].Link(SL) пустая ссылка перехода')
+          Else;
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'V') And
+           (Trim (tpl_element^.Link) = ''))
+          Then StrErrors.Add ('TopologyList['+IntToStr (tpl_element^.Line)+
+                              '.'+IntToStr (tpl_element^.SubLine)+
+                              '].Link(SL) пустая ссылка перехода')
+          Else;
+
+       {==6. Дубликаты имен}
+       tplist_count1 := TopologyList.Count;
+       For tplist_index1 := 1 To tplist_count1 Do
+       Begin
+          tpl_element1 := TopologyList.Items[tplist_index1-1];
+          If (tpl_element1 = NIL)
+             Then Continue
+             Else;
+          If (tplist_index1 = tplist_index) {пропускаем сами себя}
+             Then Continue
+             Else;
+          If (tpl_element1^.Name = tpl_element^.Name)
+             Then Begin
+                  StrErrors.Add ('TopologyList['+
+                                 IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                 '].Name(NAME_R) дубликат имени ['+
+                                 IntToStr (tpl_element1^.Line)+'.'+IntToStr (tpl_element1^.SubLine)+'] : ' +
+                                 tpl_element^.Name);
+             End
+             Else;
+          If (tpl_element1^.Id = tpl_element^.Id)
+             Then Begin
+                  StrErrors.Add ('TopologyList['+
+                                 IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                 '].Id(NAME_E) дубликат идентификатора ['+
+                                 IntToStr (tpl_element1^.Line)+'.'+IntToStr (tpl_element1^.SubLine)+'] : ' +
+                                 tpl_element^.Id);
+             End
+             Else;
+          If ((Length (tpl_element1^.Link) > 0) And (Length (tpl_element^.Link)  > 0) And
+              (tpl_element1^.Link = tpl_element^.Link))
+             Then Begin
+                  StrErrors.Add ('TopologyList['+
+                                 IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                 '].Link(SL) двойная ссылка перехода ['+
+                                 IntToStr (tpl_element1^.Line)+'.'+IntToStr (tpl_element1^.SubLine)+'] : ' +
+                                 tpl_element^.Link);
+             End
+             Else;
+       End;
+
+       {==7. Перекрестные ссылки}
+       isLinkFind := FALSE;
+       {смотрим только стрелки и блоки переходы}
+       If ((Length (tpl_element^.Id) >= 2) And (tpl_element^.Id [1] = 'S') And (tpl_element^.Id [2] = 'T') And
+           (Trim (tpl_element^.Link) <> ''))
+          Then
+       Else
+       If ((Length (tpl_element^.Id) >= 1) And (tpl_element^.Id [1] = 'V') And
+           (Trim (tpl_element^.Link) <> ''))
+          Then
+       Else Continue; {не наш "клиент"}
+       {-endif2}
+       {это "ST..." или "V..."}
+       tplist_count2 := TopologyList.Count;
+       For tplist_index2 := 1 To tplist_count2 Do
+       Begin
+          tpl_element2 := TopologyList.Items[tplist_index2-1];
+          {пропускаем пустые элементы}
+          If (tpl_element2 = NIL)
+             Then Continue
+             Else;
+          {-endif2}
+          {пропускаем сами себя}
+          If (tplist_index2 = tplist_index)
+             Then Continue
+             Else;
+          {-endif2}
+          If (tpl_element^.Link = tpl_element2^.Id) { найден переход }
+             Then Begin
+                  If (tpl_element2^.Link = tpl_element^.Id) { найден обратный переход }
+                     Then {все найдено! - выходим}
+                     Else Begin
+                          StrErrors.Add ('TopologyList['+
+                                         IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                                         '].Link(SL) неправильная ссылка перехода ['+
+                                         IntToStr (tpl_element2^.Line)+'.'+IntToStr (tpl_element2^.SubLine)+'] : ' +
+                                         tpl_element^.Link);
+                     End;
+                  {-endif3}
+                  isLinkFind := TRUE;
+                  Break;
+             End
+             Else; {продолжаем поиск}
+          {-endif2}
+       End; {end for 'tplist_index2' }
+       If (isLinkFind = FALSE)
+          Then Begin
+               StrErrors.Add ('TopologyList['+
+                              IntToStr (tpl_element^.Line)+'.'+IntToStr (tpl_element^.SubLine)+
+                              '].Link(SL) не найдена ссылка перехода '''+ tpl_element^.Link+'''');
+          End
+          Else;
+       {-endif2}
+    End; {end for 'tplist_index' }
+
+    Form_StrError.ListBox_Errors.Items.AddStrings(StrErrors, TRUE);
+    Form_StrError.ShowModal;
+
+    btn_CheckDepend.Caption := 'Проверка';
+    ProgressBar_CheckDepend.Position := 1;
+    StrErrors.Clear;
+    StrErrors.Destroy;
+end;
+
 procedure TSTANMain.Btn_FindNextClick(Sender: TObject);
 {===}
 var
@@ -1555,13 +1862,15 @@ begin
   btn_SublineUp.Visible  := FALSE;
   btn_SublineDown.Visible:= FALSE;
   btn_NewLine.Visible:= FALSE;
-  btn_CheckDepend.Visible:= FALSE;
   {Поиск}
   Btn_Find.Visible := FALSE;
   Btn_FindNext.Visible := FALSE;
   Edit_FindText.Visible := FALSE;
   Edit_FindText.Text := '';
   SearchIndex := 0;
+  {Проверка}
+  btn_CheckDepend.Visible:= FALSE;
+  ProgressBar_CheckDepend.Visible := FALSE;
 
   (Menu_StanProject.Items [0]).Items [0].Enabled := TRUE;  { "Создать" }
   (Menu_StanProject.Items [0]).Items [1].Enabled := TRUE;  { "Открыть" }
@@ -1742,6 +2051,8 @@ begin
   Btn_FindNext.Enabled := FALSE;
   Edit_FindText.Enabled := FALSE;
   Edit_FindText.Text := '';
+  {Проверка}
+  ProgressBar_CheckDepend.Visible := FALSE;
 
   {Меню}
   (Menu_StanProject.Items [0]).Items [2].Enabled := FALSE;  { "Сохранить" }

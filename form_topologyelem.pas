@@ -46,7 +46,6 @@ type
     procedure Edit_NameUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure GroupBox_ElementPropertiesClick(Sender: TObject);
 
   private
     tplg_init   : TTopology;  { Начальное состояние }
@@ -65,11 +64,6 @@ implementation
 {$R *.lfm}
 
 { TForm_TopologyElement }
-
-procedure TForm_TopologyElement.GroupBox_ElementPropertiesClick(Sender: TObject);
-begin
-
-end;
 
 procedure TForm_TopologyElement.FormCreate(Sender: TObject);
 begin
@@ -241,74 +235,87 @@ end;
 
 procedure TForm_TopologyElement.CB_TypeElementChange(Sender: TObject);
 begin
+   Combobox_ID_Link.Enabled := FALSE;
    If (CB_TypeElement.ItemIndex = 0)
       Then Begin
            Edit_NameR.Text := '';
            Edit_NameE.Text := '';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 1)
       Then Begin
            Edit_NameR.Text := 'СТ';
            Edit_NameE.Text := 'ST';
+           Combobox_ID_Link.Enabled := TRUE;
       End
    Else
    If (CB_TypeElement.ItemIndex = 2)
       Then Begin
            Edit_NameR.Text := 'СП';
            Edit_NameE.Text := 'SP';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 3)
       Then Begin
            Edit_NameR.Text := 'П';
            Edit_NameE.Text := 'P';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 4)
       Then Begin
            Edit_NameR.Text := 'БП';
            Edit_NameE.Text := 'V';
+           Combobox_ID_Link.Enabled := TRUE;
       End
    Else
    If (CB_TypeElement.ItemIndex = 5)
       Then Begin
            Edit_NameR.Text := 'Дз';
            Edit_NameE.Text := 'DZ';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 6)
       Then Begin
            Edit_NameR.Text := 'М';
            Edit_NameE.Text := 'M';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 7)
       Then Begin
            Edit_NameR.Text := 'Н';
            Edit_NameE.Text := 'N';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 8)
       Then Begin
            Edit_NameR.Text := 'Ч';
            Edit_NameE.Text := 'CH';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 9)
       Then Begin
            Edit_NameR.Text := 'УП';
            Edit_NameE.Text := 'UP';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else
    If (CB_TypeElement.ItemIndex = 10)
       Then Begin
            Edit_NameR.Text := 'СН';
            Edit_NameE.Text := 'SN';
+           Combobox_ID_Link.ItemIndex := 0;
       End
    Else Begin
            Edit_NameR.Text := '';
            Edit_NameE.Text := '';
+           Combobox_ID_Link.ItemIndex := 0;
    End;
 end;
 
@@ -321,6 +328,7 @@ var
   str_index : SizeInt;
   StrUTF8   : String;
 {===}
+{
 function _2En (_ch : TUTF8Char) : TUTF8Char;
 Begin
    If (_ch = 'А') Then Result := 'A' Else
@@ -358,7 +366,7 @@ Begin
    If (_ch = 'Я') Then Result := ''
    Else Result := _ch;
 End;
-
+}
 begin
    Edit_ID.Text :=  '';
    StrUTF8 := '';

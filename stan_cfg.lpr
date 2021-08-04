@@ -8,7 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, dbflaz, datetimectrls, form_main, form_do_lamps_2color,
-  form_topologyelem, stan_types, form_uvk, form_linpzu
+  form_topologyelem, stan_types, form_uvk, form_linpzu, form_strerr
   { you can add units after this };
 
 {$R *.res}
@@ -22,6 +22,7 @@ begin
   Application.CreateForm(TForm_TopologyElement, Form_TopologyElement);
   Application.CreateForm(TForm_UVK, Form_UVKs);
   Application.CreateForm(TForm_LINPZU, Form_LINPZUValue);
+  Application.CreateForm(TForm_StrError, Form_StrError);
   Application.Run;
 end.
 

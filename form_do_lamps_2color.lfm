@@ -1,7 +1,7 @@
 object Form_DO_Lamps_2Color: TForm_DO_Lamps_2Color
-  Left = 2670
+  Left = 2077
   Height = 394
-  Top = 289
+  Top = 228
   Width = 742
   Caption = 'Дополнительные объекты->Лампы->2 цвета'
   ClientHeight = 394

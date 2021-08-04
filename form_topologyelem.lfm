@@ -1,7 +1,7 @@
 object Form_TopologyElement: TForm_TopologyElement
-  Left = 3132
+  Left = 3218
   Height = 369
-  Top = 573
+  Top = 717
   Width = 570
   Caption = 'Элемент топологии'
   ClientHeight = 369
@@ -19,7 +19,6 @@ object Form_TopologyElement: TForm_TopologyElement
     ClientHeight = 284
     ClientWidth = 548
     TabOrder = 0
-    OnClick = GroupBox_ElementPropertiesClick
     object UpDown_Line: TUpDown
       Left = 515
       Height = 23
@@ -104,8 +103,9 @@ object Form_TopologyElement: TForm_TopologyElement
       Top = 206
       Width = 156
       ItemHeight = 15
+      ParentShowHint = False
+      Style = csDropDownList
       TabOrder = 8
-      Text = 'combobox_ID_Link'
     end
     object Label_Line: TLabel
       Left = 11
@@ -184,6 +184,7 @@ object Form_TopologyElement: TForm_TopologyElement
         '10.Смена направления ([СН...][SN...])'
       )
       OnChange = CB_TypeElementChange
+      Style = csDropDownList
       TabOrder = 9
       Text = '00.<NONE>'
     end

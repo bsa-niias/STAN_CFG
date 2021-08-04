@@ -1,7 +1,7 @@
 object STANMain: TSTANMain
-  Left = 938
+  Left = 2420
   Height = 723
-  Top = 215
+  Top = 281
   Width = 863
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
@@ -20,7 +20,14 @@ object STANMain: TSTANMain
     Width = 732
     FixedCols = 0
     FixedRows = 0
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -17
+    Font.Name = 'Web'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
+    ParentFont = False
     RowCount = 2
     ScrollBars = ssVertical
     TabOrder = 0
@@ -1301,9 +1308,10 @@ object STANMain: TSTANMain
   object btn_CheckDepend: TButton
     Left = 745
     Height = 25
-    Top = 544
+    Top = 651
     Width = 104
     Caption = 'Проверка'
+    OnClick = btn_CheckDependClick
     TabOrder = 10
   end
   object Btn_Find: TButton
@@ -1334,6 +1342,15 @@ object STANMain: TSTANMain
     Caption = 'Искать дальше'
     OnClick = Btn_FindNextClick
     TabOrder = 13
+  end
+  object ProgressBar_CheckDepend: TProgressBar
+    Left = 520
+    Height = 20
+    Top = 651
+    Width = 212
+    Position = 1
+    Step = 1
+    TabOrder = 14
   end
   object Menu_StanProject: TMainMenu
     Left = 416

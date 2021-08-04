@@ -1,0 +1,26 @@
+object Form_StrError: TForm_StrError
+  Left = 1555
+  Height = 452
+  Top = 393
+  Width = 555
+  BorderStyle = bsDialog
+  Caption = 'Результат проверки структуры зависимостей'
+  ClientHeight = 452
+  ClientWidth = 555
+  LCLVersion = '2.0.12.0'
+  object ListBox_Errors: TListBox
+    Left = -5
+    Height = 464
+    Top = 0
+    Width = 560
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -19
+    Font.Name = 'Web'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ItemHeight = 0
+    ParentFont = False
+    TabOrder = 0
+  end
+end

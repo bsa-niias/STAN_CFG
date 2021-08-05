@@ -1359,7 +1359,7 @@ object STANMain: TSTANMain
     Width = 863
     Panels = <    
       item
-        Text = 'Версия (Дата) : 0.0.1 (2021.08.04_22:08:00)'
+        Text = 'Версия (Дата) : 0.0.1a (2021.08.05_21:30:00)'
         Width = 50
       end>
     SimplePanel = False

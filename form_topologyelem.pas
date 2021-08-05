@@ -321,6 +321,11 @@ begin
            Edit_NameE.Text := '';
            Combobox_ID_Link.ItemIndex := 0;
    End;
+
+   {т.к. функция вызывается в FarmActive - проверяется флажок разрешения редактирования}
+   If (cb_EditEnable.Checked = FALSE)
+      Then Combobox_ID_Link.Enabled := FALSE
+      Else;
 end;
 
 procedure TForm_TopologyElement.Edit_NameChange(Sender: TObject);

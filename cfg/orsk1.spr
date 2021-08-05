@@ -3,7 +3,7 @@
      "TimeStamp" : "04.08.2021 22:08:43",
      "STAN" : {
           "Name" : "orsk1",
-          "Directory" : "D:\\_02_DEV\\TUMS\\STAN_CFG\\cfg\\",
+          "Directory" : ".\\cfg\\",
           "KolObj" : "orsk1_kolobj.js",
           "Topology" : "orsk1_topolog.js"
      }

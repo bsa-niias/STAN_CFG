@@ -1017,6 +1017,8 @@ begin
 
   {Меняем параметры}
   Form_TopologyElement.Init (TL_1, VList);
+  Form_TopologyElement.Left := self.Left + 30;
+  Form_TopologyElement.Top  := self.Top + 30;
   If (Form_TopologyElement.ShowModal = mrOk)
      Then Begin
           {Получаем новые значения}
@@ -1954,6 +1956,8 @@ procedure TSTANMain.Menu_Config_UVKClick(Sender: TObject);
 begin
    Form_UVKs.Init(KO.TUMS.Count, KO.MSTU.Count);
 
+   Form_UVKs.Top := self.Top + 30;
+   Form_UVKs.Left := self.Left + 30;
    if (Form_UVKs.ShowModal = mrOk)
       Then Begin
            KO.TUMS.Count := Form_UVKs.TUMSs;
@@ -2035,6 +2039,8 @@ Begin
   {Ввод количества объектов}
   Form_LINPZUValue.Init (linpzu);
 
+  Form_LINPZUValue.Top := self.Top + 30;
+  Form_LINPZUValue.Left := self.Left + 30;
   if (Form_LINPZUValue.ShowModal = mrOk)
      Then Begin
           linpzu^.C := Form_LINPZUValue.get_C;
